@@ -23,7 +23,7 @@ app.get("/", function(request, response) {
 
         res.on('end', function() {
             var responseJSON = JSON.parse(Buffer.concat(responseData));
-            var responseText = "<html><head><link href='http://fonts.googleapis.com/css?family=Domine' rel='stylesheet' type='text/css'></head><body style='width: 500px; margin: 10px auto'>";
+            var responseText = "<html><head><link href='http://fonts.googleapis.com/css?family=Domine' rel='stylesheet' type='text/css'></head><body style='width: 500px; margin: 10px auto'><h1>DC Stenographer</h1>";
 
             responseJSON.forEach(function(poll) {
                 poll.questions.forEach(function(question) {
