@@ -48,6 +48,7 @@ app.get("/", function(request, response) {
                                     subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
                                     approve: approveValue,
                                     disapprove: disapproveValue,
+                                    rest: JSON.stringify(poll)
                                 });
                             } else {
                                 responseText += handlebars.compile(approve)({
@@ -55,6 +56,7 @@ app.get("/", function(request, response) {
                                     subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
                                     approve: approveValue,
                                     disapprove: disapproveValue,
+                                    rest: JSON.stringify(poll)
                                 });
                             }
                         }
@@ -79,13 +81,15 @@ var disapprove =
         "<h4>{{pollster}}: {{disapprove}}% Disapprove, {{approve}}% Approve of Obama's Performance</h4> \
 <p>Most {{subpopulation}} disapprove of President Obama's performance, according to a \
 {{pollster}} poll. {{disapprove}}% of {{subpopulation}} disapproved of the President's \
-performance, while {{approve}}% approve. {{rest}}</p>";
+performance, while {{approve}}% approve.</p>\n\
+<code>{{rest}}</code>";
 
 var approve =
         "<h4>{{pollster}}: {{approve}}% Approve, {{disapprove}}% Disapprove of Obama's Performance</h4> \
 <p>Most {{subpopulation}} disapprove of President Obama's performance, according to a \
 {{pollster}} poll. {{approve}}% of {{subpopulation}} approved of the President's \
-performance, while {{disapprove}}% disapproved. {{rest}}</p>";
+performance, while {{disapprove}}% disapproved. {{rest}}</p>\n\
+<code>{{rest}}</code>";
 
 function rewriteSubpopuationName(name) {
     if (name === "registered voters - republican") {
