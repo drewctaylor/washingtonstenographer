@@ -88,7 +88,7 @@ var approve =
         "<h4>{{pollster}}: {{approve}}% Approve, {{disapprove}}% Disapprove of Obama's Performance</h4> \
 <p>Most {{subpopulation}} approve of President Obama's performance, according to a \
 {{pollster}} poll. {{approve}}% of {{subpopulation}} approved of the President's \
-performance, while {{disapprove}}% disapproved. {{rest}}</p>\n\
+performance, while {{disapprove}}% disapproved.</p>\n\
 <code>{{rest}}</code>";
 
 function rewriteSubpopuationName(name) {
