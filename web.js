@@ -86,7 +86,7 @@ performance, while {{approve}}% approve.</p>\n\
 
 var approve =
         "<h4>{{pollster}}: {{approve}}% Approve, {{disapprove}}% Disapprove of Obama's Performance</h4> \
-<p>Most {{subpopulation}} disapprove of President Obama's performance, according to a \
+<p>Most {{subpopulation}} approve of President Obama's performance, according to a \
 {{pollster}} poll. {{approve}}% of {{subpopulation}} approved of the President's \
 performance, while {{disapprove}}% disapproved. {{rest}}</p>\n\
 <code>{{rest}}</code>";
