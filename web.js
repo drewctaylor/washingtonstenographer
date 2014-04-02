@@ -23,19 +23,46 @@ app.get("/", function(request, response) {
 
         res.on('end', function() {
             var responseJSON = JSON.parse(Buffer.concat(responseData));
-            var responseText = "";
+            var responseText = "<html><head><link href='http://fonts.googleapis.com/css?family=Domine' rel='stylesheet' type='text/css'></head><body style='width: 500px; margin: 10px auto'>";
 
-            responseJSON.forEach(function(element) {
-                element.questions.forEach(function(question) {
-                    responseText += handlebars.compile("<p>{{pollster}} on {{topic}} ...</p>")({
-                        method: element.method,
-                        pollster: element.pollster,
-                        topic: question.chart,
+            responseJSON.forEach(function(poll) {
+                poll.questions.forEach(function(question) {
+                    question.subpopulations.forEach(function(subpopulation) {
+                        var approveValue;
+                        var disapproveValue;
+
+                        subpopulation.responses.forEach(function(response) {
+                            if (response.choice === "Approve") {
+                                approveValue = response.value;
+                            }
+
+                            if (response.choice === "Disapprove") {
+                                disapproveValue = response.value;
+                            }
+                        });
+
+                        if (question.chart === "obama-job-approval") {
+                            if (approveValue < disapproveValue) {
+                                responseText += handlebars.compile(disapprove)({
+                                    pollster: poll.pollster,
+                                    subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
+                                    approve: approveValue,
+                                    disapprove: disapproveValue,
+                                });
+                            } else {
+                                responseText += handlebars.compile(approve)({
+                                    pollster: poll.pollster,
+                                    subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
+                                    approve: approveValue,
+                                    disapprove: disapproveValue,
+                                });
+                            }
+                        }
                     });
                 });
             });
 
-            response.send('<body>' + responseText + '</body>');
+            response.send(responseText + '</body></html>');
         });
     });
 
@@ -48,26 +75,28 @@ app.listen(port, function() {
     console.log("Listening on " + port);
 });
 
-var t1 = 
-"Most Americans disapprove of President Obama's performance, according to a \
-Rasmussen poll. 51% of likely voters disapproved of the President's \
-performance, while 48% approved.";
+var disapprove =
+        "<h4>{{pollster}}: {{disapprove}}% Disapprove, {{approve}}% Approve of Obama's Performance</h4> \
+<p>Most {{subpopulation}} disapprove of President Obama's performance, according to a \
+{{pollster}} poll. {{disapprove}}% of {{subpopulation}} disapproved of the President's \
+performance, while {{approve}}% approve. {{rest}}</p>";
 
-var t2 = 
-"A plurality of Americans favor the Affordable Care Act, according to an \
-ABC/Post poll. 49% of adults favored the Affordable Care Act, while 48% opposed.";
+var approve =
+        "<h4>{{pollster}}: {{approve}}% Approve, {{disapprove}}% Disapprove of Obama's Performance</h4> \
+<p>Most {{subpopulation}} disapprove of President Obama's performance, according to a \
+{{pollster}} poll. {{approve}}% of {{subpopulation}} approved of the President's \
+performance, while {{disapprove}}% disapproved. {{rest}}</p>";
 
-var t3 = 
-"Democrat-leaning likley voters prefer incumbent Republican Thad Cochran to \
-Democrat Travis Childers in the Mississippi Senate race, according to a Rasmussen poll.  48% preferred Cochran, \
-31% preferred Childers, 9% preferred some other candidate, and 12% were undecided.";
-
-var t4 = 
-"Democrat-leaning likley voters prefer Republican Chris McDaniel to \
-Democrat Travis Childers in the Mississippi Senate race, according to a Rasmussen poll.  47% preferred McDaniel, \
-35% preferred Childers, 5% preferred some other candidate, and 14% were undecided.";
-
-var t5 = 
-"In Missippi, Democrat-leaning likely voters disapprove of President Obama's performance, \
-according to a Rasmussen poll. 54% of likely voters disapproved of the President's performance, \
-while 44% approved.";
+function rewriteSubpopuationName(name) {
+    if (name === "registered voters - republican") {
+        return "Republican registered voters";
+    } else
+    if (name === "registered voters - democrat") {
+        return "Democratic registered voters";
+    } else
+    if (name === "registered voters - independent") {
+        return "independent registered voters";
+    } else {
+        return name;
+    }
+}
