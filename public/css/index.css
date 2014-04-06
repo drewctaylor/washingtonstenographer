@@ -1,0 +1,35 @@
+* { 
+    font-family: Georgia, sans serif;
+    font-size: 13px;
+    line-height: 18.2px;
+}
+
+h4 {
+    font-family: Times New Roman, serif;
+    font-style: italic;
+    font-size: 26px;
+    line-height: 28px;
+    padding-bottom: 5px;
+}
+
+p {
+    padding-bottom: 5px;
+}
+
+.story:nth-child(4n+5) {
+    clear: both;
+}
+
+.story {
+    float: left;
+    width: 240px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.story:nth-child(4n+4) {
+    float: left;
+    width: 240px;
+    margin-bottom: 10px;
+    margin-right: 0px;
+}
