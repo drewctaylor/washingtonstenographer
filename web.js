@@ -19,7 +19,7 @@
     // middleware
     application.use(express.logger());
     application.use(express.compress());
-    application.use(express.static("public"));
+    application.use(express.static("static"));
 
     application.use("/index.html", function(request, response, next) {
 
@@ -162,7 +162,7 @@ performance, while {{disapprove}}% disapproved.</p>\n\
         var options = {
             hostname: "elections.huffingtonpost.com",
             port: 80,
-            path: "/pollster/api/polls.json",
+            path: "/pollster/api/polls.json?page=2",
             method: "GET"
         };
 
@@ -196,14 +196,14 @@ performance, while {{disapprove}}% disapproved.</p>\n\
                                 if (approveValue < disapproveValue) {
                                     responseText += handlebars.compile(disapprove)({
                                         pollster: poll.pollster,
-                                        subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
+                                        subpopulation: question.state + " " + rewriteSubpopuationName(subpopulation.name.toLowerCase()),
                                         approve: approveValue,
                                         disapprove: disapproveValue,
                                     });
                                 } else {
                                     responseText += handlebars.compile(approve)({
                                         pollster: poll.pollster,
-                                        subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
+                                        subpopulation: question.state + " " + rewriteSubpopuationName(subpopulation.name.toLowerCase()),
                                         approve: approveValue,
                                         disapprove: disapproveValue,
                                     });
@@ -214,7 +214,7 @@ performance, while {{disapprove}}% disapproved.</p>\n\
                                     end: moment(poll.end_date).format("dddd, MMMM Do, YYYY"),
                                     pollster: poll.pollster,
                                     observations: subpopulation.observations,
-                                    subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
+                                    subpopulation: question.state + " " + rewriteSubpopuationName(subpopulation.name.toLowerCase()),
                                     margin_of_error: subpopulation.margin_of_error
                                 });
                             }
@@ -233,14 +233,14 @@ performance, while {{disapprove}}% disapproved.</p>\n\
                                 if (approveValue < disapproveValue) {
                                     responseText += handlebars.compile(congressdisapprove)({
                                         pollster: poll.pollster,
-                                        subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
+                                        subpopulation: question.state + " " + rewriteSubpopuationName(subpopulation.name.toLowerCase()),
                                         approve: approveValue,
                                         disapprove: disapproveValue,
                                     });
                                 } else {
                                     responseText += handlebars.compile(congressapprove)({
                                         pollster: poll.pollster,
-                                        subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
+                                        subpopulation: question.state + " " + rewriteSubpopuationName(subpopulation.name.toLowerCase()),
                                         approve: approveValue,
                                         disapprove: disapproveValue,
                                     });
@@ -251,7 +251,7 @@ performance, while {{disapprove}}% disapproved.</p>\n\
                                     end: moment(poll.end_date).format("dddd, MMMM Do, YYYY"),
                                     pollster: poll.pollster,
                                     observations: subpopulation.observations,
-                                    subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
+                                    subpopulation: question.state + " " + rewriteSubpopuationName(subpopulation.name.toLowerCase()),
                                     margin_of_error: subpopulation.margin_of_error
                                 });
                             }
@@ -272,7 +272,7 @@ performance, while {{disapprove}}% disapproved.</p>\n\
                                 if (approveValue < disapproveValue) {
                                     responseText += handlebars.compile(subjectdisapprove)({
                                         pollster: poll.pollster,
-                                        subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
+                                        subpopulation: question.state + " " + rewriteSubpopuationName(subpopulation.name.toLowerCase()),
                                         approve: approveValue,
                                         disapprove: disapproveValue,
                                         subject: question.chart.indexOf("economy") !== -1 ? "the economy" : "health care"
@@ -280,7 +280,7 @@ performance, while {{disapprove}}% disapproved.</p>\n\
                                 } else {
                                     responseText += handlebars.compile(subjectapprove)({
                                         pollster: poll.pollster,
-                                        subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
+                                        subpopulation: question.state + " " + rewriteSubpopuationName(subpopulation.name.toLowerCase()),
                                         approve: approveValue,
                                         disapprove: disapproveValue,
                                         subject: question.chart.indexOf("economy") !== -1 ? "the economy" : "health care"
@@ -292,7 +292,7 @@ performance, while {{disapprove}}% disapproved.</p>\n\
                                     end: moment(poll.end_date).format("dddd, MMMM Do, YYYY"),
                                     pollster: poll.pollster,
                                     observations: subpopulation.observations,
-                                    subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
+                                    subpopulation: question.state + " " + rewriteSubpopuationName(subpopulation.name.toLowerCase()),
                                     margin_of_error: subpopulation.margin_of_error
                                 });
                             } else if (question.name && question.name.indexOf("Favorable Rating") !== -1) {
@@ -312,7 +312,7 @@ performance, while {{disapprove}}% disapproved.</p>\n\
                                 if (favorableValue < unfavorableValue) {
                                     responseText += handlebars.compile(unfavorable)({
                                         pollster: poll.pollster,
-                                        subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
+                                        subpopulation: question.state + " " + rewriteSubpopuationName(subpopulation.name.toLowerCase()),
                                         favorable: favorableValue,
                                         unfavorable: unfavorableValue,
                                         candidate: rewriteCandidateName(question.name),
@@ -320,7 +320,7 @@ performance, while {{disapprove}}% disapproved.</p>\n\
                                 } else {
                                     responseText += handlebars.compile(favorable)({
                                         pollster: poll.pollster,
-                                        subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
+                                        subpopulation: question.state + " " + rewriteSubpopuationName(subpopulation.name.toLowerCase()),
                                         favorable: favorableValue,
                                         unfavorable: unfavorableValue,
                                         candidate: rewriteCandidateName(question.name),
@@ -332,7 +332,7 @@ performance, while {{disapprove}}% disapproved.</p>\n\
                                     end: moment(poll.end_date).format("dddd, MMMM Do, YYYY"),
                                     pollster: poll.pollster,
                                     observations: subpopulation.observations,
-                                    subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
+                                    subpopulation: question.state + " " + rewriteSubpopuationName(subpopulation.name.toLowerCase()),
                                     margin_of_error: subpopulation.margin_of_error
                                 });
                             } else if (question.chart === "us-right-direction-wrong-track") {
@@ -352,14 +352,14 @@ performance, while {{disapprove}}% disapproved.</p>\n\
                                 if (favorableValue < unfavorableValue) {
                                     responseText += handlebars.compile(wrongtrack)({
                                         pollster: poll.pollster,
-                                        subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
+                                        subpopulation: question.state + " " + rewriteSubpopuationName(subpopulation.name.toLowerCase()),
                                         rightdirection: favorableValue,
                                         wrongtrack: unfavorableValue,
                                     });
                                 } else {
                                     responseText += handlebars.compile(rightdirection)({
                                         pollster: poll.pollster,
-                                        subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
+                                        subpopulation: question.state + " " + rewriteSubpopuationName(subpopulation.name.toLowerCase()),
                                         rightdirection: favorableValue,
                                         wrongtrack: unfavorableValue,
                                     });
@@ -370,7 +370,7 @@ performance, while {{disapprove}}% disapproved.</p>\n\
                                     end: moment(poll.end_date).format("dddd, MMMM Do, YYYY"),
                                     pollster: poll.pollster,
                                     observations: subpopulation.observations,
-                                    subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
+                                    subpopulation: question.state + " " + rewriteSubpopuationName(subpopulation.name.toLowerCase()),
                                     margin_of_error: subpopulation.margin_of_error
                                 });
 
@@ -409,7 +409,7 @@ performance, while {{disapprove}}% disapproved.</p>\n\
                                     second_name: secondName,
                                     first_number: firstValue,
                                     second_number: secondValue,
-                                    subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
+                                    subpopulation: question.state + " " + rewriteSubpopuationName(subpopulation.name.toLowerCase()),
                                     pollster: poll.pollster,
                                 });
 
@@ -418,7 +418,7 @@ performance, while {{disapprove}}% disapproved.</p>\n\
                                     end: moment(poll.end_date).format("dddd, MMMM Do, YYYY"),
                                     pollster: poll.pollster,
                                     observations: subpopulation.observations,
-                                    subpopulation: rewriteSubpopuationName(subpopulation.name.toLowerCase()),
+                                    subpopulation: question.state + " " + rewriteSubpopuationName(subpopulation.name.toLowerCase()),
                                     margin_of_error: subpopulation.margin_of_error
                                 });
                             } else {
