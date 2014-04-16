@@ -47,43 +47,67 @@ var index = function(request, response, next) {
     };
 
     pollster.poll(parameterMap, function(pollArray) {
-        pollArray.forEach(pollster.clean);
-        var responseText = "";
+        var slugArray = pollArray.reduce(function(previousValue, currentValue) {
+            currentValue.questions.forEach(function(question) {
+                if (question.chart && previousValue.indexOf(question.chart) === -1) {
+                    previousValue.push(question.chart);
+                }
+            });
 
-        var pollArraySorted = pollArray.reduce(function(pollArray, poll) {
-            poll.questions.forEach(function(question) {
-                question.subpopulations.forEach(function(subpopulation) {
-                    var pollClone = JSON.parse(JSON.stringify(poll));
-                    pollClone.question = JSON.parse(JSON.stringify(question));
-                    pollClone.question.subpopulation = subpopulation;
+            return previousValue;
+        }, []);
 
-                    delete pollClone.questions;
-                    delete pollClone.question.subpopulations;
-
-                    pollArray.push(pollClone);
+        pollster.estimate(slugArray, function(chartArray) {
+            pollArray.forEach(function(poll) {
+                poll.questions.forEach(function(question) {
+                    chartArray.forEach(function(chart) {
+                        if (question.chart && question.chart === chart.slug) {
+                            question.estimates = chart.estimates;
+                            question.estimates_by_date = chart.estimates_by_date;
+                        }
+                    });
                 });
             });
 
-            return pollArray;
-        }, []).sort(sort);
-        
-        pollArraySorted.forEach(function(pollArray) {
-            try {
-                story.StoryPollGoal.satisfy(pollArray);
-                responseText += pollArray.text;
-            } catch (e) {
-                console.log(pollArray.question.name);
-            }
+            pollArray.forEach(pollster.clean);
+            var responseText = "";
+
+            var pollArraySorted = pollArray.reduce(function(pollArray, poll) {
+                poll.questions.forEach(function(question) {
+                    question.subpopulations.forEach(function(subpopulation) {
+                        var pollClone = JSON.parse(JSON.stringify(poll));
+                        pollClone.question = JSON.parse(JSON.stringify(question));
+                        pollClone.question.subpopulation = subpopulation;
+
+                        delete pollClone.questions;
+                        delete pollClone.question.subpopulations;
+
+                        pollArray.push(pollClone);
+                    });
+                });
+
+                return pollArray;
+            }, []).sort(sort);
+
+            pollArraySorted.forEach(function(pollArray) {
+                try {
+                    story.StoryPollGoal.satisfy(pollArray);
+                    responseText += pollArray.text;
+                } catch (e) {
+                    console.log(pollArray.question.name);
+                }
+            });
+
+            response.render("index.html", {
+                yesterday: moment(before).subtract('days', 1).format("dddd, MMMM Do, YYYY"),
+                yesterdayLink: moment(before).subtract('days', 1).format("YYYY-MM-DD"),
+                tomorrow: moment(before).add('days', 1).format("dddd, MMMM Do, YYYY"),
+                tomorrowLink: moment(before).add('days', 1).format("YYYY-MM-DD"),
+                today: moment(before).format("dddd, MMMM Do, YYYY"),
+                html: responseText
+            });
         });
 
-        response.render("index.html", {
-            yesterday: moment(before).subtract('days', 1).format("dddd, MMMM Do, YYYY"),
-            yesterdayLink: moment(before).subtract('days', 1).format("YYYY-MM-DD"),
-            tomorrow: moment(before).add('days', 1).format("dddd, MMMM Do, YYYY"),
-            tomorrowLink: moment(before).add('days', 1).format("YYYY-MM-DD"),
-            today: moment(before).format("dddd, MMMM Do, YYYY"),
-            html: responseText
-        });
     });
 };
 

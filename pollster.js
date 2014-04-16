@@ -5,7 +5,8 @@ var http = require("http");
 // constant
 var HOSTNAME = "elections.huffingtonpost.com";
 var PORT = 80;
-var PATH = "/pollster/api/polls.json?page=";
+var PATH_POLL = "/pollster/api/polls.json?page=";
+var PATH_CHART = "/pollster/api/charts/";
 var STATE_CODE_MAP =
         {"AL": "Alabama",
             "AK": "Alaska",
@@ -68,13 +69,38 @@ var STATE_CODE_MAP =
             "WY": "Wyoming",
             "US": "U.S."};
 
+var PARTY_CODE_MAP = {
+    "Dem": "Democrat",
+    "Rep": "Republican",
+    "Ind": "independent",
+    "Gre": "Green",
+    "Con": "Conservative",
+    "Lib": "Libertarian"
+};
+
+var SUBPOPULATION_CODE_MAP = {
+    "Adults - Democrat": "Democrats",
+    "Adults - Republican": "Republicans",
+    "Adults - independent": "independents",
+    "Adults": "adults",
+    "Likely Voters - Democrat": "Democratic likely voters",
+    "Likely Voters - Republican": "Republican likely voters",
+    "Likely Voters - independent": "independent likely voters",
+    "Likely Voters": "likely voters",
+    "Registered Voters - Democrat": "registered Democratic voters",
+    "Registered Voters - Republican": "reigstered Republican voters",
+    "Registered Voters - independent": "registered independent voters",
+    "Registered Voters": "registered voters"
+};
+
+
 exports.poll = function(parameterMap, callback, page) {
     page = page === undefined ? 1 : page;
 
     var options = {
         hostname: HOSTNAME,
         port: PORT,
-        path: PATH + page + underscore.pairs(parameterMap).reduce(function(previousValue, currentValue) {
+        path: PATH_POLL + page + underscore.pairs(parameterMap).reduce(function(previousValue, currentValue) {
             return previousValue + "&" + currentValue[0] + "=" + currentValue[1];
         }, "")
     };
@@ -100,6 +126,38 @@ exports.poll = function(parameterMap, callback, page) {
             }
         });
     });
+};
+
+exports.estimate = function(slugArray, callback) {
+    if (slugArray.length === 0) {
+        callback([]);
+    } else {
+        var slug = slugArray.pop();
+
+        var options = {
+            hostname: HOSTNAME,
+            port: PORT,
+            path: PATH_CHART + slug
+        };
+
+        console.log(options.path);
+
+        http.get(options, function(response) {
+            var responseDataArray = [];
+
+            response.on("data", function(responseData) {
+                responseDataArray.push(responseData);
+            });
+
+            response.on("end", function() {
+                var responseJsonCurrent = JSON.parse(Buffer.concat(responseDataArray));
+
+                exports.estimate(slugArray, function(responseJson) {
+                    callback(responseJson.concat(responseJsonCurrent));
+                });
+            });
+        });
+    }
 };
 
 exports.clean = function(poll) {
@@ -193,7 +251,11 @@ exports.clean = function(poll) {
             question.year = question.name.substring(0, 4).match(/[0-9][0-9][0-9][0-9]/gi) ? question.name.substring(0, 4) : undefined;
 
             if (question.name.match(/national house/gi) !== null) {
+                question.type = "Congressional Generic Ballot";
                 question.office = "Congressional Generic Ballot";
+
+            } else if (question.name.match(/lieutenant/gi) !== null) {
+                question.office = "Lieutenant Governor";
 
             } else if (question.name.match(/governor/gi) !== null || question.name.match(/gubernatorial/gi) !== null) {
                 question.office = "Governor";
@@ -247,6 +309,24 @@ exports.clean = function(poll) {
                 }
             }
         }
+
+        question.subpopulations.forEach(function(subpopulation) {
+
+            underscore.keys(SUBPOPULATION_CODE_MAP).forEach(function(key) {
+                if (subpopulation.name === key) {
+                    subpopulation.name = SUBPOPULATION_CODE_MAP[key];
+                }
+            });
+
+            subpopulation.responses.forEach(function(response) {
+                underscore.keys(PARTY_CODE_MAP).forEach(function(key) {
+                    if (response.party === key) {
+                        response.party = PARTY_CODE_MAP[key];
+                    }
+                });
+
+            });
+        })
     });
 };
 
@@ -254,7 +334,7 @@ exports.sortQuestionSubpopulationResponse = function(a, b) {
     var aCandidate = a.filter(function(element) {
         return element.last_name || element.first_name;
     });
-    
+
     var bCandidate = b.filter(function(element) {
         return element.last_name || element.first_name;
     });
@@ -262,7 +342,7 @@ exports.sortQuestionSubpopulationResponse = function(a, b) {
     var aMean = aCandidate.reduce(function(previousValue, currentValue) {
         return previousValue = previousValue + currentValue.value / aCandidate.length;
     }, 0);
-    
+
     var bMean = bCandidate.reduce(function(previousValue, currentValue) {
         return previousValue = previousValue + currentValue.value / bCandidate.length;
     }, 0);
@@ -270,7 +350,7 @@ exports.sortQuestionSubpopulationResponse = function(a, b) {
     var aVariance = aCandidate.reduce(function(previousValue, currentValue) {
         return previousValue = previousValue + ((currentValue.value - aMean) * (currentValue.value - aMean)) / aCandidate.length;
     }, 0);
-    
+
     var bVariance = bCandidate.reduce(function(previousValue, currentValue) {
         return previousValue = previousValue + ((currentValue.value - bMean) * (currentValue.value - aMean)) / bCandidate.length;
     }, 0);
@@ -279,12 +359,12 @@ exports.sortQuestionSubpopulationResponse = function(a, b) {
 };
 
 exports.sortQuestionYear = function(a, b) {
-    if(a === b) {
+    if (a === b) {
         return 0;
     } else {
-        if(a === undefined) {
+        if (a === undefined) {
             return 1;
-        } else if(b === undefined) {
+        } else if (b === undefined) {
             return -1;
         } else {
             return a - b;
@@ -302,7 +382,7 @@ exports.sortQuestionType = function(a, b) {
         "satisfaction",
         "direction"
     ];
-    
+
     var aValue = order.indexOf(a) === -1 ? order.length : order.indexOf(a);
     var bValue = order.indexOf(b) === -1 ? order.length : order.indexOf(b);
 
@@ -317,6 +397,7 @@ exports.sortQuestionOffice = function(a, b) {
         "House",
         "Congressional Generic Ballot",
         "Attorney General",
+        "Lieutenant Governor",
         "Mayor",
         "Comptroller"
     ];
