@@ -1,13 +1,10 @@
 <h4>
     <a href="{{source}}">
-        {{question.stateName}} {{question.subpopulation.name}} divided on {{question.first_name}} {{question.last_name}}
+        {{question.stateName}}: {{question.last_name}} Approval Divided
     </a>
 </h4>
-<h5>
-    {{question.first_name}} {{question.last_name}} Approval, {{question.stateName}}
-</h5>
 <p>
-    Most {{question.stateName}} {{question.subpopulation.name}} disapprove of {{question.first_name}} {{question.last_name}}, according to a 
-    {{pollster}} poll. {{disapprove}}% of  {{question.stateName}} {{question.subpopulation.name}} disapproved of {{question.first_name}} {{question.last_name}}, 
-    while {{approve}}% approved.
+    {{question.stateName}} {{question.subpopulation.name}} are divided on{{question.first_name}} {{question.last_name}}, according to a 
+    {{pollster}} poll. {{calculation.approve}}% of approve of {{question.last_name}}, 
+    while {{calculation.disapprove}}% disapproved.
 </p>

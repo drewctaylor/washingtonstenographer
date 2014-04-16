@@ -67,42 +67,12 @@ var index = function(request, response, next) {
             return pollArray;
         }, []).sort(sort);
         
-        var pollSetArray = pollArraySorted.reduce(function(previousValue, currentValue) {
-            var added = false;
-            
-            previousValue.forEach(function(element) {
-                if(element.type === currentValue.question.type &&
-                        element.year === currentValue.question.year &&
-                        element.office === currentValue.question.office && 
-                        element.state === currentValue.question.state) {
-                    added = true;
-                    element.pollArray.push(currentValue);
-                }
-            });
-            
-            if(!added) {
-                previousValue.push({
-                    type: currentValue.question.type,
-                    year: currentValue.question.year,
-                    office: currentValue.question.office,
-                    state: currentValue.question.state,
-                    pollArray: [currentValue]
-                });
-            }
-            
-            return previousValue;
-        }, []);
-        
         pollArraySorted.forEach(function(pollArray) {
             try {
                 story.StoryPollGoal.satisfy(pollArray);
                 responseText += pollArray.text;
             } catch (e) {
-//                pollArray.text = undefined;
-//                responseText += "<div class=\"story\">";
-//                responseText += JSON.stringify(pollArray);
-//                responseText += "</div>";
-                console.log(e);
+                console.log(pollArray.question.name);
             }
         });
 
