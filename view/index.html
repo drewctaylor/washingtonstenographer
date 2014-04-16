@@ -7,12 +7,17 @@
         <title>The Washington Stenographer</title>
     </head>
     <body>
-        <div style="width:990px; margin: 0px auto">
-            <div style="padding: 50px 50px 0px 50px">
-                <img src="image/stenographer.svg" style="height: 44px; width: 568px; margin: 0px auto; display: block"/>
+        <div>
+            <div class="head">
             </div>
-            <div style="text-align: center; padding: 10px; border-bottom: 3px double black; color: #111111; margin-bottom:10px;">
-                {{date}}
+            <div class="date">
+                <a href="?date={{tomorrowLink}}">
+                    &lt;
+                </a>
+                {{today}} 
+                <a href="?date={{yesterdayLink}}">
+                    &gt;
+                </a>
             </div>
             <div>
                 {{{html}}}
