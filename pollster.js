@@ -70,7 +70,7 @@ var STATE_CODE_MAP =
 
 exports.poll = function(parameterMap, callback, page) {
     page = page === undefined ? 1 : page;
-    
+
     var options = {
         hostname: HOSTNAME,
         port: PORT,
@@ -78,7 +78,7 @@ exports.poll = function(parameterMap, callback, page) {
             return previousValue + "&" + currentValue[0] + "=" + currentValue[1];
         }, "")
     };
-    
+
     console.log(options.path);
 
     http.get(options, function(response) {
@@ -91,7 +91,7 @@ exports.poll = function(parameterMap, callback, page) {
         response.on("end", function() {
             var responseJsonCurrent = JSON.parse(Buffer.concat(responseDataArray));
 
-            if(responseJsonCurrent.length === 0) {
+            if (responseJsonCurrent.length === 0) {
                 callback(responseJsonCurrent);
             } else {
                 exports.poll(parameterMap, function(responseJson) {
@@ -128,7 +128,7 @@ exports.clean = function(poll) {
                 }
             }
         }
-        
+
         question.stateName = STATE_CODE_MAP[question.state];
 
         if (question.name.match(/approval/gi) !== null) {
@@ -193,7 +193,7 @@ exports.clean = function(poll) {
             question.year = question.name.substring(0, 4).match(/[0-9][0-9][0-9][0-9]/gi) ? question.name.substring(0, 4) : undefined;
 
             if (question.name.match(/national house/gi) !== null) {
-                question.office = "national house";
+                question.office = "Congressional Generic Ballot";
 
             } else if (question.name.match(/governor/gi) !== null || question.name.match(/gubernatorial/gi) !== null) {
                 question.office = "Governor";
@@ -248,4 +248,81 @@ exports.clean = function(poll) {
             }
         }
     });
+};
+
+exports.sortQuestionSubpopulationResponse = function(a, b) {
+    var aCandidate = a.filter(function(element) {
+        return element.last_name || element.first_name;
+    });
+    
+    var bCandidate = b.filter(function(element) {
+        return element.last_name || element.first_name;
+    });
+
+    var aMean = aCandidate.reduce(function(previousValue, currentValue) {
+        return previousValue = previousValue + currentValue.value / aCandidate.length;
+    }, 0);
+    
+    var bMean = bCandidate.reduce(function(previousValue, currentValue) {
+        return previousValue = previousValue + currentValue.value / bCandidate.length;
+    }, 0);
+
+    var aVariance = aCandidate.reduce(function(previousValue, currentValue) {
+        return previousValue = previousValue + ((currentValue.value - aMean) * (currentValue.value - aMean)) / aCandidate.length;
+    }, 0);
+    
+    var bVariance = bCandidate.reduce(function(previousValue, currentValue) {
+        return previousValue = previousValue + ((currentValue.value - bMean) * (currentValue.value - aMean)) / bCandidate.length;
+    }, 0);
+
+    return aVariance - bVariance;
+};
+
+exports.sortQuestionYear = function(a, b) {
+    if(a === b) {
+        return 0;
+    } else {
+        if(a === undefined) {
+            return 1;
+        } else if(b === undefined) {
+            return -1;
+        } else {
+            return a - b;
+        }
+    }
+};
+
+exports.sortQuestionType = function(a, b) {
+    var order = [
+        "election",
+        "favor/oppose",
+        "approval",
+        "favorability",
+        "identification",
+        "satisfaction",
+        "direction"
+    ];
+    
+    var aValue = order.indexOf(a) === -1 ? order.length : order.indexOf(a);
+    var bValue = order.indexOf(b) === -1 ? order.length : order.indexOf(b);
+
+    return aValue - bValue;
+};
+
+exports.sortQuestionOffice = function(a, b) {
+    var order = [
+        "President",
+        "Senate",
+        "Governor",
+        "House",
+        "Congressional Generic Ballot",
+        "Attorney General",
+        "Mayor",
+        "Comptroller"
+    ];
+
+    var aValue = order.indexOf(a) === -1 ? order.length : order.indexOf(a);
+    var bValue = order.indexOf(b) === -1 ? order.length : order.indexOf(b);
+
+    return aValue - bValue;
 };
