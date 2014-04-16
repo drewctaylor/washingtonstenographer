@@ -1,0 +1,11 @@
+<table>
+    <tr>
+        <th>Choice</th>
+        <th>Value</th>
+    </tr>
+    {{#question.subpopulation.responses}}
+    <tr>
+        <td>{{choice}}</td><td>{{value}}%</td>
+    </tr>
+    {{/question.subpopulation.responses}}
+</table>

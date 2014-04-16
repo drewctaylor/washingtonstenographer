@@ -1,0 +1,20 @@
+<h4>
+    <a href="{{source}}">
+        {{question.stateName}} {{question.subpopulation.name}} undecided
+    </a>
+</h4>
+<h5>
+    {{question.year}} {{question.office}}, {{question.stateName}} 
+</h5>
+<p>
+    {{candidateFirst.first_name}} {{candidateFirst.last_name}} leads among {{question.stateName}} 
+    {{question.subpopulation.name}}, according to a {{pollster}} poll. {{candidateFirst.value}}% 
+    preferred {{candidateFirst.last_name}} to other candidates. 
+</p>
+<p>
+    <span class="series-conjunction">
+        {{#candidate}}
+        <span>{{value}}% {{choice}}</span>
+        {{/candidate}}
+    </span> 
+</p>
