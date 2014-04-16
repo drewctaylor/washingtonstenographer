@@ -155,17 +155,17 @@ var storyPollDirection = new action.Action("Story - Poll - Right Track/Wrong Dir
 var storyPollFavorabilityTypeGoal = new goal.Goal("Story - Poll - Favorability - Type")
         .action(new action.Action("Story - Poll - Favorability - Favorable")
                 .thereExists(function(poll) {
-                    return poll.favorable - poll.unfavorable > 2 * poll.question.subpopulation.margin_of_error;
+                    return poll.calculation.favorable - poll.calculation.unfavorable > 2 * poll.question.subpopulation.margin_of_error;
                 })
                 .then(substitute("/poll/poll-favorability-favorable.html")))
         .action(new action.Action("Story - Poll - Favorability - Unfavorable")
                 .thereExists(function(poll) {
-                    return poll.unfavorable - poll.favorable > 2 * poll.question.subpopulation.margin_of_error;
+                    return poll.calculation.unfavorable - poll.calculation.favorable > 2 * poll.question.subpopulation.margin_of_error;
                 })
                 .then(substitute("/poll/poll-favorability-unfavorable.html")))
         .action(new action.Action("Story - Poll - Favorability - Divided")
                 .thereExists(function(poll) {
-                    return Math.abs(poll.favorable - poll.unfavorable) <= 2 * poll.question.subpopulation.margin_of_error;
+                    return Math.abs(poll.calculation.favorable - poll.calculation.unfavorable) <= 2 * poll.question.subpopulation.margin_of_error;
                 })
                 .then(substitute("/poll/poll-favorability-divided.html")));
 
@@ -178,29 +178,32 @@ var storyPollFavorability = new action.Action("Story - Poll - Favorability")
             }, false);
         })
         .then(function(poll) {
-            poll.favorable = poll.question.subpopulation.responses.reduce(function(previousValue, currentValue) {
+            poll.calculation = {};
+            poll.calculation.favorable = poll.question.subpopulation.responses.reduce(function(previousValue, currentValue) {
                 return previousValue +
                         (currentValue.choice.toLowerCase() === "favorable" ? currentValue.value : 0) +
                         (currentValue.choice.toLowerCase() === "very favorable" ? currentValue.value : 0) +
                         (currentValue.choice.toLowerCase() === "somewhat favorable" ? currentValue.value : 0);
             }, 0);
 
-            poll.unfavorable = poll.question.subpopulation.responses.reduce(function(previousValue, currentValue) {
+            poll.calculation.unfavorable = poll.question.subpopulation.responses.reduce(function(previousValue, currentValue) {
                 return previousValue +
                         (currentValue.choice.toLowerCase() === "unfavorable" ? currentValue.value : 0) +
                         (currentValue.choice.toLowerCase() === "very unfavorable" ? currentValue.value : 0) +
                         (currentValue.choice.toLowerCase() === "somewhat unfavorable" ? currentValue.value : 0);
             }, 0);
 
-            poll.undecided = poll.question.subpopulation.responses.reduce(function(previousValue, currentValue) {
+            poll.calculation.undecided = poll.question.subpopulation.responses.reduce(function(previousValue, currentValue) {
                 return previousValue +
                         (currentValue.choice.toLowerCase() === "undecided" ? currentValue.value : 0);
             }, 0);
 
-            poll.neither = poll.question.subpopulation.responses.reduce(function(previousValue, currentValue) {
+            poll.calculation.neither = poll.question.subpopulation.responses.reduce(function(previousValue, currentValue) {
                 return previousValue +
                         (currentValue.choice.toLowerCase() === "neither" ? currentValue.value : 0);
             }, 0);
+            
+            poll.calculation.net = poll.calculation.favorable - poll.calculation.unfavorable;
 
             storyPollFavorabilityTypeGoal.satisfy(poll);
         });
@@ -371,13 +374,13 @@ var storyPollElection = new action.Action("Story - Poll - Election")
         });
 
 var storyPollTypeGoal = new goal.Goal("Story - Poll - Type")
-        .action(storyPollHouse)
+//        .action(storyPollHouse)
         .action(storyPollApproval)
         .action(storyPollFavorability)
-        .action(storyPollSatisfaction)
-        .action(storyPollIdentification)
-        .action(storyPollDirection)
-        .action(storyPollOppose)
+//        .action(storyPollSatisfaction)
+//        .action(storyPollIdentification)
+//        .action(storyPollDirection)
+//        .action(storyPollOppose)
         .action(storyPollElection);
 
 var storyPoll = new action.Action("Story - Poll")
@@ -433,6 +436,7 @@ var storyPoll = new action.Action("Story - Poll")
             poll.end_date = moment(poll.end_date).format("dddd, MMMM Do, YYYY");
 
             poll.method = poll.method.toLowerCase();
+            poll.method = poll.method === "mixed" ? "several methods" : poll.method;
 
             poll.subject = poll.question.topic === "obama-job-approval" ? "Obama" : undefined;
             poll.subject = poll.subject ? poll.subject : (poll.question.chart === "us-health-bill" ? "Affordable Care Act" : undefined);
