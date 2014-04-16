@@ -1,19 +1,51 @@
-* { 
+body { 
     font-family: Georgia, sans serif;
     font-size: 13px;
     line-height: 18.2px;
 }
 
+table {
+    width: 100%;
+    font-family: Georgia, sans serif;
+    font-size: 13px;
+    line-height: 18.2px;
+    border-collapse: separate;
+    padding: 10px 10px 10px 10px;
+    border: 1px solid black;
+}
+
+th {
+    font-weight: bold;
+    border-bottom: 1px solid black;
+}
+
+tr td:nth-child(2), th:nth-child(2) {
+    text-align: right;
+}
+
 h4 {
+    text-align: center;
     font-family: Times New Roman, serif;
-    font-style: italic;
-    font-size: 26px;
-    line-height: 28px;
-    padding-bottom: 5px;
+    font-size: 20px;
+    line-height: 22px;
+    text-transform: capitalize;
+}
+
+h5 {
+    text-align: center;
+    font-family: Georgia, sans serif;
+    font-size: 13px;
+    line-height: 18.2px;
+    font-weight: bold;
 }
 
 p {
     padding-bottom: 5px;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
 }
 
 .story:nth-child(4n+5) {
@@ -34,3 +66,16 @@ p {
     margin-bottom: 10px;
     margin-right: 0px;
 }
+
+.series-conjunction span:after {
+    content: ","
+}
+
+.series-conjunction span:nth-last-child(2):after {
+    content: " and "
+}
+
+.series-conjunction span:last-child:after {
+    content: ""
+}
+

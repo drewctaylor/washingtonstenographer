@@ -1,0 +1,10 @@
+<p>
+    <span class="series-conjunction">
+        {{#survey_houses}}
+        <span>{{name}}</span>
+        {{/survey_houses}}
+    </span> 
+    interviewed {{question.subpopulation.observations}} {{question.stateName}} {{question.subpopulation.name}} 
+    by {{method}} between {{start_date}} and {{end_date}}. The poll has a 
+    sampling error of +/-{{question.subpopulation.margin_of_error}}%.
+</p>
