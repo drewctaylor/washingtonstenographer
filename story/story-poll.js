@@ -97,6 +97,7 @@ var storyPollApproval = new action.Action("Story - Poll - Approval")
             return poll.question.type === "approval";
         })
         .then(function(poll) {
+            console.log(poll.question.subpopulation.responses);
             poll.calculation = {};
             poll.calculation.approve = poll.question.subpopulation.responses.reduce(function(previousValue, currentValue) {
                 return previousValue +
@@ -131,7 +132,6 @@ var storyPollElectionTypeGoal = new goal.Goal("Story - Poll - Election - Type")
         .action(new action.Action("Story - Poll - Election - A B Tie")
                 .thereExists(function(poll) {
                     return poll.candidate.length === 2 &&
-                            Math.abs(poll.candidateFirst.value - poll.candidateSecond.value) < (2 * poll.question.subpopulation.margin_of_error) &&
                             poll.candidateFirst.value === poll.candidateSecond.value;
                 })
                 .then(substitute("/poll/poll-election-tie-a-b.html")))
@@ -144,7 +144,7 @@ var storyPollElectionTypeGoal = new goal.Goal("Story - Poll - Election - Type")
                 .then(substitute("/poll/poll-election-divided-a-b.html")))
         .action(new action.Action("Story - Poll - Election - A Leads B")
                 .thereExists(function(poll) {
-                    return poll.candidate.length === 2 &&
+                    return poll.candidate.length === 2 && poll.question.subpopulation.margin_of_error &&
                             Math.abs(poll.candidateFirst.value - poll.candidateSecond.value) >= (2 * poll.question.subpopulation.margin_of_error);
                 })
                 .then(substitute("/poll/poll-election-a-leads-b.html")))
@@ -157,16 +157,14 @@ var storyPollElectionTypeGoal = new goal.Goal("Story - Poll - Election - Type")
 var storyPollPrimaryTypeGoal = new goal.Goal("Story - Poll - Primary - Type")
         .action(new action.Action("Story - Poll - Primary - A B Tie")
                 .thereExists(function(poll) {
-                    return poll.candidate.length === 2 &&
-                            Math.abs(poll.candidateFirst.value - poll.candidateSecond.value) < (2 * poll.question.subpopulation.margin_of_error) &&
-                            poll.candidateFirst.value === poll.candidateSecond.value;
+                    return poll.candidate.length === 2 && poll.candidateFirst.value === poll.candidateSecond.value;
                 })
                 .then(substitute("/poll/poll-primary-tie-a-b.html")))
         .action(new action.Action("Story - Poll - Primary - Divided A B")
                 .thereExists(function(poll) {
                     return poll.candidate.length === 2 &&
                             Math.abs(poll.candidateFirst.value - poll.candidateSecond.value) < (2 * poll.question.subpopulation.margin_of_error) &&
-                            poll.candidateFirst.value !== poll.candidateSecond.value;
+                            poll.candidateFirst.value != poll.candidateSecond.value;
                 })
                 .then(substitute("/poll/poll-primary-divided-a-b.html")))
         .action(new action.Action("Story - Poll - Primary - A Leads B")
@@ -200,42 +198,42 @@ var storyPollPrimary = new action.Action("Story - Poll - Primary")
         })
         .then(function(poll) {
             try {
-            poll.candidate = poll.question.subpopulation.responses.filter(function(response) {
-                return response.first_name !== null;
-            }).sort(function(a, b) {
-                return b.value - a.value;
-            });
+                poll.candidate = poll.question.subpopulation.responses.filter(function(response) {
+                    return response.first_name !== null;
+                }).sort(function(a, b) {
+                    return b.value - a.value;
+                });
 
-            if (poll.candidate) {
-                poll.candidate.forEach(function(candidate) {
-                    if (poll.question.estimates) {
-                        poll.question.estimates.forEach(function(estimate) {
-                            if (candidate.choice === estimate.choice) {
-                                candidate.estimate = estimate.value;
-                            }
-                        })
-                    }
-                })
+                if (poll.candidate) {
+                    poll.candidate.forEach(function(candidate) {
+                        if (poll.question.estimates) {
+                            poll.question.estimates.forEach(function(estimate) {
+                                if (candidate.choice === estimate.choice) {
+                                    candidate.estimate = estimate.value;
+                                }
+                            })
+                        }
+                    })
+                }
+
+                poll.undecided = poll.question.subpopulation.responses.reduce(function(previousValue, currentValue) {
+                    return previousValue +
+                            (currentValue.choice.toLowerCase() === "undecided" ? currentValue.value : 0);
+                }, 0);
+
+                poll.other = poll.question.subpopulation.responses.reduce(function(previousValue, currentValue) {
+                    return previousValue +
+                            (currentValue.choice.toLowerCase() === "other" ? currentValue.value : 0);
+                }, 0);
+
+                poll.candidateFirst = poll.candidate[0];
+                poll.candidateSecond = poll.candidate[1];
+
+                storyPollPrimaryTypeGoal.satisfy(poll);
+                storyPollElectionEstimateGoal.satisfy(poll);
+            } catch (e) {
+                console.log(e);
             }
-
-            poll.undecided = poll.question.subpopulation.responses.reduce(function(previousValue, currentValue) {
-                return previousValue +
-                        (currentValue.choice.toLowerCase() === "undecided" ? currentValue.value : 0);
-            }, 0);
-
-            poll.other = poll.question.subpopulation.responses.reduce(function(previousValue, currentValue) {
-                return previousValue +
-                        (currentValue.choice.toLowerCase() === "other" ? currentValue.value : 0);
-            }, 0);
-
-            poll.candidateFirst = poll.candidate[0];
-            poll.candidateSecond = poll.candidate[1];
-
-            storyPollPrimaryTypeGoal.satisfy(poll);
-            storyPollElectionEstimateGoal.satisfy(poll);
-        } catch(e) {
-            console.log(e);
-        }
         });
 
 var storyPollElection = new action.Action("Story - Poll - Election")
@@ -244,42 +242,42 @@ var storyPollElection = new action.Action("Story - Poll - Election")
         })
         .then(function(poll) {
             try {
-            poll.candidate = poll.question.subpopulation.responses.filter(function(response) {
-                return response.first_name !== null;
-            }).sort(function(a, b) {
-                return b.value - a.value;
-            });
+                poll.candidate = poll.question.subpopulation.responses.filter(function(response) {
+                    return response.first_name !== null;
+                }).sort(function(a, b) {
+                    return b.value - a.value;
+                });
 
-            if (poll.candidate) {
-                poll.candidate.forEach(function(candidate) {
-                    if (poll.question.estimates) {
-                        poll.question.estimates.forEach(function(estimate) {
-                            if (candidate.choice === estimate.choice) {
-                                candidate.estimate = estimate.value;
-                            }
-                        })
-                    }
-                })
+                if (poll.candidate) {
+                    poll.candidate.forEach(function(candidate) {
+                        if (poll.question.estimates) {
+                            poll.question.estimates.forEach(function(estimate) {
+                                if (candidate.choice === estimate.choice) {
+                                    candidate.estimate = estimate.value;
+                                }
+                            })
+                        }
+                    })
+                }
+
+                poll.undecided = poll.question.subpopulation.responses.reduce(function(previousValue, currentValue) {
+                    return previousValue +
+                            (currentValue.choice.toLowerCase() === "undecided" ? currentValue.value : 0);
+                }, 0);
+
+                poll.other = poll.question.subpopulation.responses.reduce(function(previousValue, currentValue) {
+                    return previousValue +
+                            (currentValue.choice.toLowerCase() === "other" ? currentValue.value : 0);
+                }, 0);
+
+                poll.candidateFirst = poll.candidate[0];
+                poll.candidateSecond = poll.candidate[1];
+
+                storyPollElectionTypeGoal.satisfy(poll);
+                storyPollElectionEstimateGoal.satisfy(poll);
+            } catch (e) {
+                console.log(e);
             }
-
-            poll.undecided = poll.question.subpopulation.responses.reduce(function(previousValue, currentValue) {
-                return previousValue +
-                        (currentValue.choice.toLowerCase() === "undecided" ? currentValue.value : 0);
-            }, 0);
-
-            poll.other = poll.question.subpopulation.responses.reduce(function(previousValue, currentValue) {
-                return previousValue +
-                        (currentValue.choice.toLowerCase() === "other" ? currentValue.value : 0);
-            }, 0);
-
-            poll.candidateFirst = poll.candidate[0];
-            poll.candidateSecond = poll.candidate[1];
-
-            storyPollElectionTypeGoal.satisfy(poll);
-            storyPollElectionEstimateGoal.satisfy(poll);
-        } catch(e) {
-            console.log(e);
-        }
         });
 
 var storyPollTypeGoal = new goal.Goal("Story - Poll - Type")
@@ -299,6 +297,7 @@ var storyPoll = new action.Action("Story - Poll")
 
             poll.start_date = moment(poll.start_date).format("dddd, MMMM Do, YYYY");
             poll.end_date = moment(poll.end_date).format("dddd, MMMM Do, YYYY");
+
 
             poll.method = poll.method.toLowerCase();
             poll.method = poll.method === "mixed" ? "several methods" : poll.method;

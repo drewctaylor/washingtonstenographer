@@ -17,7 +17,8 @@
     "pg" : "3.0.1",
     
     "sprintf-js" : "0.0.7",
-    "underscore" : "1.6.0"
+    "underscore" : "1.6.0",
+        "es6-promise": "0.1.1"
   },
   "keywords" : [ ],
   "bugs" : {

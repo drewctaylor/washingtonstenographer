@@ -2,8 +2,17 @@ var express = require("express");
 var http = require("http");
 var engineSet = require("consolidate");
 var moment = require("moment");
-var pollster = require("./pollster.js");
+//var pollster = require("./module/pollster/pollster-http.js");
+var pollster = require("./module/pollster/pollster-sql.js").initialize(process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/POLLSTER");
+var cleaner = require("./pollster.js");
 var story = require("./story/story-poll.js");
+var Promise = require("es6-promise").Promise;
+
+var pollsterSync = require("./module/pollster/pollster-synchronize.js").synchronize(process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/POLLSTER").then(function(result) {
+    console.log(result);
+}).catch(function(error) {
+    console.log(error.stack);
+})
 
 // initialize express application
 var application = express();
@@ -22,18 +31,18 @@ application.use(express.compress());
 application.use(express.static("static"));
 
 var sort = function(a, b) {
-    if (pollster.sortQuestionType(a.question.type, b.question.type) === 0) {
-        if (pollster.sortQuestionYear(a.question.year, b.question.year) === 0) {
-            if (pollster.sortQuestionOffice(a.question.office, b.question.office) === 0) {
-                return pollster.sortQuestionSubpopulationResponse(a.question.subpopulation.responses, b.question.subpopulation.responses);
+    if (cleaner.sortQuestionType(a.question.type, b.question.type) === 0) {
+        if (cleaner.sortQuestionYear(a.question.year, b.question.year) === 0) {
+            if (cleaner.sortQuestionOffice(a.question.office, b.question.office) === 0) {
+                return cleaner.sortQuestionSubpopulationResponse(a.question.subpopulation.responses, b.question.subpopulation.responses);
             } else {
-                return pollster.sortQuestionOffice(a.question.office, b.question.office);
+                return cleaner.sortQuestionOffice(a.question.office, b.question.office);
             }
         } else {
-            return pollster.sortQuestionYear(a.question.year, b.question.year);
+            return cleaner.sortQuestionYear(a.question.year, b.question.year);
         }
     } else {
-        return pollster.sortQuestionType(a.question.type, b.question.type);
+        return cleaner.sortQuestionType(a.question.type, b.question.type);
     }
 };
 
@@ -41,12 +50,7 @@ var index = function(request, response, next) {
     var before = request.query.date === undefined ? moment().format("YYYY-MM-DD") : moment(request.query.date).format("YYYY-MM-DD");
     var after = moment(before).subtract('days', 7).format("YYYY-MM-DD");
 
-    var parameterMap = {
-        after: after,
-        before: before
-    };
-
-    pollster.poll(parameterMap, function(pollArray) {
+    pollster.poll().endedAfter(after).endedBefore(before).promise().then(function(pollArray) {
         var slugArray = pollArray.reduce(function(previousValue, currentValue) {
             currentValue.questions.forEach(function(question) {
                 if (question.chart && previousValue.indexOf(question.chart) === -1) {
@@ -57,7 +61,9 @@ var index = function(request, response, next) {
             return previousValue;
         }, []);
 
-        pollster.estimate(slugArray, function(chartArray) {
+        Promise.all(slugArray.map(function(slug) {
+            return pollster.chart(slug).promise();
+        })).then(function(chartArray) {
             pollArray.forEach(function(poll) {
                 poll.questions.forEach(function(question) {
                     chartArray.forEach(function(chart) {
@@ -69,7 +75,7 @@ var index = function(request, response, next) {
                 });
             });
 
-            pollArray.forEach(pollster.clean);
+            pollArray.forEach(cleaner.clean);
             var responseText = "";
 
             var pollArraySorted = pollArray.reduce(function(pollArray, poll) {
@@ -107,7 +113,8 @@ var index = function(request, response, next) {
                 html: responseText
             });
         });
-
+    }).catch(function(error) {
+        console.log(error.stack);
     });
 };
 
