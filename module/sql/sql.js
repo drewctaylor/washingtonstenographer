@@ -5,6 +5,7 @@ function Context(connectionDescriptor) {
     var statementArray = [];
 
     this.enqueue = function(statement) {
+        console.log(statement);
         statementArray.push(statement);
 
         return this;
