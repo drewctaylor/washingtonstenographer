@@ -141,14 +141,17 @@ function promiseForChartArray(connectionDescriptor, chartArray) {
 
 exports.synchronize = function(connectionDescriptor) {
     return promiseForInitialization(connectionDescriptor).then(function() {
+        console.log("Initialized.");
         return promiseForUpdate(connectionDescriptor);
     }).then(function(rowArray) {
+        console.log("Checked.");
         if (rowArray[0].update === null) {
             return pollsterHttp.poll().updatedSince("2014-01-01").promise();
         } else {
             return pollsterHttp.poll().updatedSince(moment(rowArray[0].update).format("YYYY-MM-DD")).promise();
         }
     }).then(function(pollArray) {
+        console.log("Checked HTTP.");
         return Promise.all([pollArray, Promise.all(pollArray.reduce(function(questionArray, poll) {
                 return questionArray.concat(poll.questions);
             }, []).reduce(function(chartArray, question) {
