@@ -1,9 +1,12 @@
 #! /app/vendor/node/bin/node
 
-require("../module/pollster/pollster-synchronize.js").synchronize(process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/POLLSTER").then(function(result) {
-    console.log(result);
+require("../module/pollster/pollster-synchronize.js").synchronize(process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/POLLSTER").then(function() {
+    console.log("The system has updated the database.");
+
     process.exit();
 }).catch(function(error) {
+    console.log("The system has not updated the database.");
     console.log(error.stack);
+
     process.exit();
 });

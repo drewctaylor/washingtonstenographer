@@ -24,6 +24,8 @@ CREATE TABLE IF NOT EXISTS chart_estimate (
     PRIMARY KEY(ce_id)
 );
 
+CREATE INDEX ON chart_estimate (ce_chart);
+
 CREATE TABLE IF NOT EXISTS poll (
     poll_id serial,
     poll_id_external integer,
@@ -48,6 +50,8 @@ CREATE TABLE IF NOT EXISTS question (
     PRIMARY KEY(question_id)
 );
 
+CREATE INDEX ON question (question_poll);
+
 CREATE TABLE IF NOT EXISTS response (
     response_id serial,
     response_subpopulation integer,
@@ -60,6 +64,8 @@ CREATE TABLE IF NOT EXISTS response (
     PRIMARY KEY(response_id)
 );
 
+CREATE INDEX ON response (response_subpopulation);
+
 CREATE TABLE IF NOT EXISTS subpopulation (
     subpopulation_id serial,
     subpopulation_question integer,
@@ -68,3 +74,5 @@ CREATE TABLE IF NOT EXISTS subpopulation (
     subpopulation_margin_of_error numeric,
     PRIMARY KEY(subpopulation_id)
 );
+
+CREATE INDEX ON subpopulation (subpopulation_question);
