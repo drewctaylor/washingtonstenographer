@@ -231,7 +231,7 @@ function Chart(connectionDescriptor, chartValue) {
 
     this.promise = function() {
         return new Promise(function(resolve, reject) {
-            var statement = "SELECT * FROM chart LEFT JOIN chart_estimate ON chart_id = ce_chart WHERE chart_slug = $1 ORDER BY ce_date desc";
+            var statement = "SELECT * FROM chart LEFT JOIN chart_estimate ON chart_id = ce_chart WHERE chart_slug = $1 AND ce_date IS NULL ORDER BY ce_date desc";
             var parameterArray = [chartValue];
 
             var connection = sql.connectionFactory(connectionDescriptor).connection();
