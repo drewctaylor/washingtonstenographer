@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS chart (
     chart_state character varying(1000),
     chart_poll_count integer,
     chart_update timestamp without time zone,
-    chart_url character varying(1000)
+    chart_url character varying(1000),
+    PRIMARY KEY(chart_id)
 );
 
 CREATE TABLE IF NOT EXISTS chart_estimate (
@@ -19,7 +20,8 @@ CREATE TABLE IF NOT EXISTS chart_estimate (
     ce_first_name character varying(1000),
     ce_last_name character varying(1000),
     ce_party character varying(1000),
-    ce_incumbent boolean
+    ce_incumbent boolean,
+    PRIMARY KEY(ce_id)
 );
 
 CREATE TABLE IF NOT EXISTS poll (
@@ -32,7 +34,8 @@ CREATE TABLE IF NOT EXISTS poll (
     poll_source character varying(500),
     poll_update timestamp without time zone,
     poll_pollster_array character varying(300),
-    poll_sponsor_array character varying(300)
+    poll_sponsor_array character varying(300),
+    PRIMARY KEY(poll_id)
 );
 
 CREATE TABLE IF NOT EXISTS question (
@@ -41,7 +44,8 @@ CREATE TABLE IF NOT EXISTS question (
     question_name character varying(100),
     question_chart character varying(100),
     question_topic character varying(100),
-    question_state character varying(2)
+    question_state character varying(2),
+    PRIMARY KEY(question_id)
 );
 
 CREATE TABLE IF NOT EXISTS response (
@@ -52,14 +56,15 @@ CREATE TABLE IF NOT EXISTS response (
     response_first_name character varying(100),
     response_last_name character varying(100),
     response_party character varying(100),
-    response_incumbent boolean
+    response_incumbent boolean,
+    PRIMARY KEY(response_id)
 );
-
 
 CREATE TABLE IF NOT EXISTS subpopulation (
     subpopulation_id serial,
     subpopulation_question integer,
     subpopulation_name character varying(100),
     subpopulation_observations integer,
-    subpopulation_margin_of_error numeric
+    subpopulation_margin_of_error numeric,
+    PRIMARY KEY(subpopulation_id)
 );
