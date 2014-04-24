@@ -1,16 +1,7 @@
-var filesystem = require("fs");
 var moment = require("moment");
-var pollsterHttp = require("./pollster-http.js");
+var pollster = require("./pollster-http.js");
 var sql = require("../sql/sql.js");
 var Promise = require("es6-promise").Promise;
-
-function queryArrayForInitialization() {
-    return filesystem.readFileSync(__dirname + "/pollster-schema.sql", {encoding: "UTF-8"})
-            .split(";")
-            .map(function(tableDefinition) {
-                return [tableDefinition];
-            });
-}
 
 function queryArrayForResponse(response) {
     return [["INSERT INTO response (response_subpopulation, response_choice, response_value, response_first_name, response_last_name, response_party, response_incumbent) VALUES (currval('subpopulation_subpopulation_id_seq'), $1, $2, $3, $4, $5, $6)", [
@@ -97,16 +88,6 @@ function queryArrayForChart(chart) {
             chart.estimates_by_date.map(queryArrayForEstimateByDate));
 }
 
-function promiseForInitialization(connectionDescriptor) {
-    var connection = sql.connectionFactory(connectionDescriptor).connection();
-
-    queryArrayForInitialization().forEach(function(query) {
-        connection.enqueue(query);
-    });
-
-    return connection.promise();
-}
-
 function promiseForUpdate(connectionDescriptor) {
     var connection = sql.connectionFactory(connectionDescriptor).connection();
 
@@ -140,31 +121,33 @@ function promiseForChartArray(connectionDescriptor, chartArray) {
 }
 
 exports.synchronize = function(connectionDescriptor) {
-    console.log("Initializing...");
-    return promiseForInitialization(connectionDescriptor).then(function() {
-        console.log("Initialized.");
-        return promiseForUpdate(connectionDescriptor);
-    }).then(function(rowArray) {
-        console.log("Checked.");
+    console.log("The system is querying the database for the most recent poll. . .");
+
+    return promiseForUpdate(connectionDescriptor).then(function(rowArray) {
         if (rowArray[0].update === null) {
-            return pollsterHttp.poll().updatedSince("2014-01-01").promise();
+            console.log("The system is querying the api for polls updated since 2000-01-01. . .");
+
+            return pollster.poll().updatedSince("2000-01-01").promise();
         } else {
-            return pollsterHttp.poll().updatedSince(moment(rowArray[0].update).format("YYYY-MM-DD")).promise();
+            console.log("The system is querying the api for polls updated since " + moment(rowArray[0].update).format("YYYY-MM-DD") + ". . .");
+
+            return pollster.poll().updatedSince(moment(rowArray[0].update).format("YYYY-MM-DD")).promise();
         }
     }).then(function(pollArray) {
-        console.log("Checked HTTP.");
+        console.log("The system is querying the api for charts updated since the same date . . . ");
+
         return Promise.all([pollArray, Promise.all(pollArray.reduce(function(questionArray, poll) {
                 return questionArray.concat(poll.questions);
             }, []).reduce(function(chartArray, question) {
                 return question.chart && chartArray.indexOf(question.chart) === -1 ? chartArray.concat(question.chart) : chartArray;
             }, []).map(function(chart) {
-                return pollsterHttp.chart(chart).promise();
+                return pollster.chart(chart).promise();
             }))]);
-    }).then(function(array) {
-        return Promise.all([
-            promiseForPollArray(connectionDescriptor, array[0]),
-            promiseForChartArray(connectionDescriptor, array[1])]);
-    }).catch(function(error) {
-        console.log(error);
+    }).then(function() {
+        console.log("The system is updating the database . . . ");
+
+        return Promise.all(
+                [promiseForPollArray(connectionDescriptor, arguments[0][0]),
+                promiseForChartArray(connectionDescriptor, arguments[0][1])]);
     });
 };
