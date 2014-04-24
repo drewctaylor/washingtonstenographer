@@ -140,6 +140,7 @@ function promiseForChartArray(connectionDescriptor, chartArray) {
 }
 
 exports.synchronize = function(connectionDescriptor) {
+    console.log("Initializing...");
     return promiseForInitialization(connectionDescriptor).then(function() {
         console.log("Initialized.");
         return promiseForUpdate(connectionDescriptor);
