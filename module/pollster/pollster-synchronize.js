@@ -6,7 +6,6 @@ var Promise = require("es6-promise").Promise;
 
 function queryArrayForInitialization() {
     return filesystem.readFileSync(__dirname + "/pollster-schema.sql", {encoding: "UTF-8"})
-            .replace(/\s+/gi, " ")
             .split(";")
             .map(function(tableDefinition) {
                 return [tableDefinition];

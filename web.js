@@ -8,12 +8,6 @@ var cleaner = require("./pollster.js");
 var story = require("./story/story-poll.js");
 var Promise = require("es6-promise").Promise;
 
-var pollsterSync = require("./module/pollster/pollster-synchronize.js").synchronize(process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/POLLSTER").then(function(result) {
-    console.log(result);
-}).catch(function(error) {
-    console.log(error.stack);
-})
-
 // initialize express application
 var application = express();
 
