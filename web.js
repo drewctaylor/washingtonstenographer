@@ -55,19 +55,19 @@ var index = function(request, response, next) {
             return previousValue;
         }, []);
 
-//        Promise.all(slugArray.map(function(slug) {
-//            return pollster.chart(slug).promise();
-//        })).then(function(chartArray) {
-//            pollArray.forEach(function(poll) {
-//                poll.questions.forEach(function(question) {
-//                    chartArray.forEach(function(chart) {
-//                        if (question.chart && question.chart === chart.slug) {
-//                            question.estimates = chart.estimates;
-//                            question.estimates_by_date = chart.estimates_by_date;
-//                        }
-//                    });
-//                });
-//            });
+        Promise.all(slugArray.map(function(slug) {
+            return pollster.chart(slug).promise();
+        })).then(function(chartArray) {
+            pollArray.forEach(function(poll) {
+                poll.questions.forEach(function(question) {
+                    chartArray.forEach(function(chart) {
+                        if (question.chart && question.chart === chart.slug) {
+                            question.estimates = chart.estimates;
+                            question.estimates_by_date = chart.estimates_by_date;
+                        }
+                    });
+                });
+            });
 
             pollArray.forEach(cleaner.clean);
             var responseText = "";
@@ -106,7 +106,7 @@ var index = function(request, response, next) {
                 today: moment(before).format("dddd, MMMM Do, YYYY"),
                 html: responseText
             });
-//        });
+        });
     }).catch(function(error) {
         console.log(error.stack);
     });
