@@ -1,0 +1,15 @@
+<p>
+    <span class="series-conjunction">
+        {{#survey_houses}}
+        <span>{{name}}</span>
+        {{/survey_houses}}
+    </span> 
+    interviewed {{question.subpopulation.observations}} {{question.subpopulation.description}} 
+    by {{method}} between {{start_date}} and {{end_date}}. 
+    <span class="series-conjunction">
+        {{#sponsors}}
+        <span>{{name}}</span>
+        {{/sponsors}}
+    </span> 
+    sponsored the poll.  Its margin of error is not available.
+</p>

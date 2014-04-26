@@ -4,12 +4,14 @@
         <span>{{name}}</span>
         {{/survey_houses}}
     </span> 
-    interviewed {{question.subpopulation.observations}} {{question.stateName}} {{question.subpopulation.name}} 
+    interviewed {{question.subpopulation.description}} 
     by {{method}} between {{start_date}} and {{end_date}}. 
     <span class="series-conjunction">
         {{#sponsors}}
         <span>{{name}}</span>
         {{/sponsors}}
     </span> 
-    sponsored the poll; it has a sampling error of +/-{{question.subpopulation.margin_of_error}}%.
+    sponsored the poll; it has a margin of error of +/-{{question.subpopulation.margin_of_error}}%.  
+    The number of {{question.subpopulation.description}} interviewed is not 
+    available.
 </p>

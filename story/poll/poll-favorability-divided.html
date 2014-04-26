@@ -1,10 +1,13 @@
 <h4>
     <a href="{{source}}">
-        {{question.stateName}}: {{question.last_name}} Favorability Divided
+        {{question.type.subject.last_name}} Favorability Divided
     </a>
 </h4>
+<h5>
+    {{question.type.subject.first_name}} {{question.type.subject.last_name}} Favorability, {{question.stateCode}}
+</h5>
 <p>
-    {{question.stateName}} {{question.subpopulation.name}} are divided on {{question.first_name}} {{question.last_name}}, according to a 
-    {{pollster}} poll. {{calculation.favorable}}% have a favorable opinion of of {{question.last_name}}, 
+    {{question.subpopulation.description}} are divided on {{question.type.subject.first_name}} {{question.type.subject.last_name}}, according to a 
+    {{pollster}} poll. {{calculation.favorable}}% have a favorable opinion of of {{question.type.subject.last_name}}, 
     while {{calculation.unfavorable}}% have an unfavorable opinion.
 </p>

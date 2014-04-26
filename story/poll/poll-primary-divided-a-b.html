@@ -4,10 +4,10 @@
     </a>
 </h4>
 <h5>
-    {{question.year}} {{question.primary}} Primary for {{question.office}}, {{question.stateName}} 
+    {{question.type.subject.year}} {{question.type.subject.primary}} Primary for {{question.type.subject.office}}, {{question.stateName}} 
 </h5>
 <p>
-    {{question.stateName}} {{question.subpopulation.name}} are divided between {{candidateFirst.first_name}} 
+    {{question.subpopulation.description}} are divided between {{candidateFirst.first_name}} 
     {{candidateFirst.last_name}} and {{candidateSecond.first_name}} {{candidateSecond.last_name}}, 
     according to a {{pollster}} poll. {{candidateFirst.value}}% preferred {{candidateFirst.last_name}}, 
     while {{candidateSecond.value}}% preferred {{candidateSecond.last_name}}.
