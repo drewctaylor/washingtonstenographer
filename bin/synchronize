@@ -1,4 +1,4 @@
-#! /app/vendor/node/bin/node
+#!/usr/bin/env node
 
 require("../module/pollster/pollster-synchronize.js").synchronize(process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/POLLSTER").then(function() {
     console.log("The system has updated the database.");
