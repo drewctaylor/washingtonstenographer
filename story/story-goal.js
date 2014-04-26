@@ -38,7 +38,7 @@ function Goal(name) {
                 console.log(sprintf("The system satisfied the goal '%s' with the action '%s'.", name, actionSet[actionIndex].name()));
                 return;
             } catch (e) {
-                console.log(e.message);
+//                console.log(e.message);
             }
         }
 

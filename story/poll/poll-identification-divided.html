@@ -1,0 +1,14 @@
+<h4>
+    <a href="{{source}}">
+        {{question.subpopulation.description}} Divided on Party
+    </a>
+</h4>
+
+<h5>Party Identification</h5>
+
+<p class="capitalize-sentence">
+    {{question.subpopulation.description}} are divided on their party 
+    identification, according to a {{pollster}} poll: <span class="series-conjunction">
+        {{#calculation.identification}} <span>{{value}}% identify as {{choice}}s</span>{{/calculation.identification}}.
+    </span> 
+</p>

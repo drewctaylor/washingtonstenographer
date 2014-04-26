@@ -2,9 +2,9 @@ var express = require("express");
 var http = require("http");
 var engineSet = require("consolidate");
 var moment = require("moment");
-//var pollster = require("./module/pollster/pollster-http.js");
 var pollster = require("./module/pollster/pollster-sql.js").initialize(process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/POLLSTER");
-var cleaner = require("./pollster.js");
+var sort = require("./module/pollster/pollster-sort.js");
+var clean = require("./module/pollster/pollster-clean.js").clean;
 var story = require("./story/story-poll.js");
 var Promise = require("es6-promise").Promise;
 
@@ -24,19 +24,19 @@ application.use(express.logger());
 application.use(express.compress());
 application.use(express.static("static"));
 
-var sort = function(a, b) {
-    if (cleaner.sortQuestionType(a.question.type, b.question.type) === 0) {
-        if (cleaner.sortQuestionYear(a.question.year, b.question.year) === 0) {
-            if (cleaner.sortQuestionOffice(a.question.office, b.question.office) === 0) {
-                return cleaner.sortQuestionSubpopulationResponse(a.question.subpopulation.responses, b.question.subpopulation.responses);
+var s = function(a, b) {
+    if (sort.sortQuestionType(a.question.type.name, b.question.type.name) === 0) {
+        if (a.question.type.subject && b.question.type.subject && sort.sortQuestionYear(a.question.type.subject.year, b.question.type.subject.year) === 0) {
+            if (sort.sortQuestionOffice(a.question.type.subject.office, b.question.type.subject.office) === 0) {
+                return sort.sortQuestionSubpopulationResponse(a.question.subpopulation.responses, b.question.subpopulation.responses);
             } else {
-                return cleaner.sortQuestionOffice(a.question.office, b.question.office);
+                return sort.sortQuestionOffice(a.question.type.subject.office, b.question.type.subject.office);
             }
         } else {
-            return cleaner.sortQuestionYear(a.question.year, b.question.year);
+            return a.question.name.localeCompare(b.question.name);
         }
     } else {
-        return cleaner.sortQuestionType(a.question.type, b.question.type);
+        return sort.sortQuestionType(a.question.type.name, b.question.type.name);
     }
 };
 
@@ -55,21 +55,7 @@ var index = function(request, response, next) {
             return previousValue;
         }, []);
 
-//        Promise.all(slugArray.map(function(slug) {
-//            return pollster.chart(slug).promise();
-//        })).then(function(chartArray) {
-//            pollArray.forEach(function(poll) {
-//                poll.questions.forEach(function(question) {
-//                    chartArray.forEach(function(chart) {
-//                        if (question.chart && question.chart === chart.slug) {
-//                            question.estimates = chart.estimates;
-//                            question.estimates_by_date = chart.estimates_by_date;
-//                        }
-//                    });
-//                });
-//            });
-
-        pollArray.forEach(cleaner.clean);
+        pollArray.forEach(clean);
         var responseText = "";
 
         var pollArraySorted = pollArray.reduce(function(pollArray, poll) {
@@ -87,14 +73,15 @@ var index = function(request, response, next) {
             });
 
             return pollArray;
-        }, []).sort(sort);
+        }, []).sort(s);
 
         pollArraySorted.forEach(function(pollArray) {
             try {
                 story.StoryPollGoal.satisfy(pollArray);
                 responseText += pollArray.text;
             } catch (e) {
-                console.log(pollArray.question.name);
+                console.log(pollArray);
+                console.log(e.stack);
             }
         });
 
@@ -106,7 +93,6 @@ var index = function(request, response, next) {
             today: moment(before).format("dddd, MMMM Do, YYYY"),
             html: responseText
         });
-//        });
     }).catch(function(error) {
         console.log(error.stack);
     });
@@ -120,3 +106,19 @@ application.use(function(request, response, next) {
 
 // start the application
 application.listen(process.env.PORT || 8000);
+
+//        Promise.all(slugArray.map(function(slug) {
+//            return pollster.chart(slug).promise();
+//        })).then(function(chartArray) {
+//            pollArray.forEach(function(poll) {
+//                poll.questions.forEach(function(question) {
+//                    chartArray.forEach(function(chart) {
+//                        if (question.chart && question.chart === chart.slug) {
+//                            question.estimates = chart.estimates;
+//                            question.estimates_by_date = chart.estimates_by_date;
+//                        }
+//                    });
+//                });
+//            });
+//        });
+

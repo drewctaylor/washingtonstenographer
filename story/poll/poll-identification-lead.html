@@ -1,0 +1,17 @@
+<h4>
+    <a href="{{source}}">
+        {{calculation.responseLead.value}}% {{question.subpopulation.description}} {{calculation.responseLead.choice}}s
+    </a>
+</h4>
+
+<h5>Party Identification</h5>
+
+<p class="capitalize-sentence">
+    {{calculation.responseLead.value}}% {{question.subpopulation.description}} 
+    identify as {{calculation.responseLead.choice}}s, according to a {{pollster}} poll.
+</p>
+<p>
+    <span class="series-conjunction">
+        {{#calculation.identification}} <span>{{value}}% identify as {{choice}}s</span>{{/calculation.identification}}.
+    </span> 
+</p>

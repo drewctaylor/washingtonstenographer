@@ -1,10 +1,13 @@
 <h4>
     <a href="{{source}}">
-        {{question.stateName}}: {{question.last_name}} Favorability +{{calculation.net}}
+        {{question.type.subject.last_name}} Favorability +{{calculation.net}}
     </a>
 </h4>
+<h5>
+    {{question.type.subject.first_name}} {{question.type.subject.last_name}} Favorability, {{question.stateCode}}
+</h5>
 <p>
-    Most {{question.stateName}} {{question.subpopulation.name}} have a favorable opinion of {{question.first_name}} {{question.last_name}}, according to a 
-    {{pollster}} poll. {{calculation.favorable}}% have a favorable opinion of of {{question.last_name}}, 
+    Most {{question.subpopulation.description}} have a favorable opinion of {{question.type.subject.first_name}} {{question.type.subject.last_name}}, according to a 
+    {{pollster}} poll. {{calculation.favorable}}% have a favorable opinion of of {{question.type.subject.last_name}}, 
     while {{calculation.unfavorable}}% have an unfavorable opinion.
 </p>

@@ -39,6 +39,10 @@ h5 {
     font-weight: bold;
 }
 
+.capitalize-sentence:first-letter {
+    text-transform: capitalize;
+}
+
 p {
     padding-bottom: 5px;
 }

@@ -1,7 +1,8 @@
 var moment = require("moment");
-var pollster = require("./pollster-http.js");
-var sql = require("../sql/sql.js");
 var Promise = require("es6-promise").Promise;
+
+var sql = require("../sql/sql.js");
+var pollster = require("./pollster-http.js");
 
 function queryArrayForResponse(response) {
     return [["INSERT INTO response (response_subpopulation, response_choice, response_value, response_first_name, response_last_name, response_party, response_incumbent) VALUES (currval('subpopulation_subpopulation_id_seq'), $1, $2, $3, $4, $5, $6)", [
@@ -33,9 +34,6 @@ function queryArrayForQuestion(question) {
 function queryArrayForPoll(poll) {
     return Array.prototype.concat.apply([
         ["DELETE FROM poll WHERE poll_id_external = $1", [poll.id]],
-        ["DELETE FROM question WHERE question_poll NOT IN (SELECT poll_id FROM poll)"],
-        ["DELETE FROM subpopulation WHERE subpopulation_question NOT IN (SELECT question_id FROM question)"],
-        ["DELETE FROM response WHERE response_subpopulation NOT IN (SELECT subpopulation_id FROM subpopulation)"],
         ["INSERT INTO poll (poll_id_external, poll_pollster, poll_start_date, poll_end_date, poll_method, poll_source, poll_update, poll_pollster_array, poll_sponsor_array) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)", [
                 poll.id,
                 poll.pollster,
@@ -75,7 +73,6 @@ function queryArrayForChart(chart) {
     return Array.prototype.concat.apply(
             Array.prototype.concat.apply([
                 ["DELETE FROM chart WHERE chart_slug = $1", [chart.slug]],
-                ["DELETE FROM chart_estimate WHERE ce_chart NOT IN (SELECT chart_id FROM chart)"],
                 ["INSERT INTO chart (chart_title, chart_slug, chart_topic, chart_state, chart_poll_count, chart_update, chart_url) VALUES ($1, $2, $3, $4, $5, $6, $7)", [
                         chart.title,
                         chart.slug,
@@ -125,9 +122,11 @@ exports.synchronize = function(connectionDescriptor) {
 
     return promiseForUpdate(connectionDescriptor).then(function(rowArray) {
         if (rowArray[0].update === null) {
-            console.log("The system is querying the api for polls updated since 2000-01-01. . .");
+            var update = "2000-01-01";
+            
+            console.log("The system is querying the api for polls updated since ", update, ". . .");
 
-            return pollster.poll().updatedSince("2000-01-01").promise();
+            return pollster.poll().updatedSince(update).promise();
         } else {
             console.log("The system is querying the api for polls updated since " + moment(rowArray[0].update).format("YYYY-MM-DD") + ". . .");
 

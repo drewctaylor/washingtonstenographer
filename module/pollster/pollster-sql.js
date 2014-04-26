@@ -1,6 +1,7 @@
 var filesystem = require("fs");
 var moment = require("moment");
 var Promise = require("es6-promise").Promise;
+
 var sql = require("../sql/sql.js");
 
 function jsonEstimateForRow(row) {

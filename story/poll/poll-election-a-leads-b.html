@@ -4,12 +4,12 @@
     </a>
 </h4>
 <h5>
-    {{question.year}} {{question.office}}, {{question.stateName}} 
+    {{question.type.subject.year}} {{question.type.subject.office}}, {{question.stateName}} 
 </h5>
 <p>
     {{candidateFirst.party}} {{candidateFirst.first_name}} {{candidateFirst.last_name}} 
     leads {{candidateSecond.party}} {{candidateSecond.first_name}} {{candidateSecond.last_name}} 
-    in the contest for {{question.stateName}} {{question.office}}, according to a {{pollster}} poll.
+    in the contest for {{question.stateName}} {{question.type.subject.office}}, according to a {{pollster}} poll.
     {{candidateFirst.value}}% preferred {{candidateFirst.last_name}}, 
     while {{candidateSecond.value}}% preferred {{candidateSecond.last_name}}.
 </p>

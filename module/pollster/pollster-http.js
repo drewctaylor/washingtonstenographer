@@ -36,6 +36,8 @@ function Charts() {
             path = path + (stateValue !== undefined ? "state=" + stateValue + "&" : "");
             path = path + (topicValue !== undefined ? "topic=" + topicValue + "&" : "");
             path = path.substring(0, path.length - 1);
+            
+            console.log("http://elections.huffingtonpost.com" + path);
 
             http.get({
                 hostname: "elections.huffingtonpost.com",
@@ -68,6 +70,8 @@ function Chart(chartValue) {
     this.promise = function() {
         return new Promise(function(resolve, reject) {
             var path = "/pollster/api/charts/" + chartValue;
+            
+            console.log("http://elections.huffingtonpost.com" + path);
 
             http.get({
                 hostname: "elections.huffingtonpost.com",
@@ -214,6 +218,8 @@ function Poll() {
             path = path + (beforeValue !== undefined ? "before=" + beforeValue.format("YYYY-MM-DD") + "&" : "");
             path = path + (afterValue !== undefined ? "after=" + afterValue.format("YYYY-MM-DD") + "&" : "");
             path = path + "sort=updated";
+            
+            console.log("http://elections.huffingtonpost.com" + path);
 
             http.get({
                 hostname: "elections.huffingtonpost.com",

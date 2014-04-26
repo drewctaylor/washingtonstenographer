@@ -1,0 +1,11 @@
+<p>
+    <span class="series-conjunction">
+        {{#survey_houses}}
+        <span>{{name}}</span>
+        {{/survey_houses}}
+    </span> 
+    interviewed {{question.subpopulation.description}} by {{method}} between {{start_date}} 
+    and {{end_date}}.  The poll has a margin of error of +/-{{question.subpopulation.margin_of_error}}%.  
+    The number of {{question.subpopulation.description}} interviewed is not 
+    available.
+</p>
