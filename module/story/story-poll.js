@@ -3,8 +3,8 @@ var mustache = require("mustache");
 var moment = require("moment");
 var substitute = require("./story-poll-substitute.js").substitute;
 
-var action = require("./story-action.js");
-var goal = require("./story-goal.js");
+var action = require("../universe/story-action.js");
+var goal = require("../universe/story-goal.js");
 
 var storyPollDisclaimerGoal = require("./story-poll-disclaimer.js").storyPollDisclaimerGoal();
 var storyPollApproval = require("./story-poll-approval.js").storyPollApproval();

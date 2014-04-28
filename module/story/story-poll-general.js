@@ -1,38 +1,39 @@
-var action = require("./story-action.js");
-var goal = require("./story-goal.js");
+var action = require("../universe/story-action.js");
+var goal = require("../universe/story-goal.js");
 var substitute = require("./story-poll-substitute.js").substitute;
 
 var storyPollElectionEstimateGoal = require("./story-poll-estimate.js").storyPollElectionEstimateGoal();
 
-var storyPollPrimaryTypeGoal = new goal.Goal("Story - Poll - Primary - Type")
-        .action(new action.Action("Story - Poll - Primary - A B Tie")
-                .thereExists(function(poll) {
-                    return poll.candidate.length === 2 && poll.candidateFirst.value === poll.candidateSecond.value;
-                })
-                .then(substitute("/poll/poll-primary-tie-a-b.html")))
-        .action(new action.Action("Story - Poll - Primary - Divided A B")
+var storyPollGeneralTypeGoal = new goal.Goal("Story - Poll - Election - Type")
+        .action(new action.Action("Story - Poll - Election - A B Tie")
                 .thereExists(function(poll) {
                     return poll.candidate.length === 2 &&
-                            Math.abs(poll.candidateFirst.value - poll.candidateSecond.value) < (2 * poll.question.subpopulation.margin_of_error) &&
-                            poll.candidateFirst.value != poll.candidateSecond.value;
+                            poll.candidateFirst.value === poll.candidateSecond.value;
                 })
-                .then(substitute("/poll/poll-primary-divided-a-b.html")))
-        .action(new action.Action("Story - Poll - Primary - A Leads B")
+                .then(substitute("/poll/poll-election-tie-a-b.html")))
+        .action(new action.Action("Story - Poll - Election - Divided A B")
                 .thereExists(function(poll) {
                     return poll.candidate.length === 2 &&
+                            (Math.abs(poll.candidateFirst.value - poll.candidateSecond.value) < (2 * poll.question.subpopulation.margin_of_error) || poll.question.subpopulation.margin_of_error === 0) &&
+                            poll.candidateFirst.value !== poll.candidateSecond.value;
+                })
+                .then(substitute("/poll/poll-election-divided-a-b.html")))
+        .action(new action.Action("Story - Poll - Election - A Leads B")
+                .thereExists(function(poll) {
+                    return poll.candidate.length === 2 && poll.question.subpopulation.margin_of_error &&
                             Math.abs(poll.candidateFirst.value - poll.candidateSecond.value) >= (2 * poll.question.subpopulation.margin_of_error);
                 })
-                .then(substitute("/poll/poll-primary-a-leads-b.html")))
-        .action(new action.Action("Story - Poll - Primary - A Leads B")
+                .then(substitute("/poll/poll-election-a-leads-b.html")))
+        .action(new action.Action("Story - Poll - Election - A Leads B")
                 .thereExists(function(poll) {
                     return poll.candidate.length !== 2;
                 })
-                .then(substitute("/poll/poll-primary-a-leads-all.html")));
+                .then(substitute("/poll/poll-election-a-leads-all.html")));
 
-exports.storyPollPrimary = function() {
-    return new action.Action("Story - Poll - Primary")
+exports.storyPollGeneral = function() {
+    return new action.Action("Story - Poll - Election")
             .thereExists(function(poll) {
-                return poll.question.type.name === "election" && poll.question.type.subject.primary;
+                return poll.question.type.name === "election" && !poll.question.type.subject.primary;
             })
             .then(function(poll) {
                 try {
@@ -67,7 +68,7 @@ exports.storyPollPrimary = function() {
                     poll.candidateFirst = poll.candidate[0];
                     poll.candidateSecond = poll.candidate[1];
 
-                    storyPollPrimaryTypeGoal.satisfy(poll);
+                    storyPollGeneralTypeGoal.satisfy(poll);
                     storyPollElectionEstimateGoal.satisfy(poll);
                 } catch (e) {
                     console.log(e);
