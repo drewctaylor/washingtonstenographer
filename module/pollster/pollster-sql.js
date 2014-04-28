@@ -97,7 +97,8 @@ function jsonResponseForRow(row) {
         first_name: row.response_first_name,
         last_name: row.response_last_name,
         party: row.response_party,
-        incumbent: row.response_incumbent
+        incumbent: row.response_incumbent,
+        estimate: row.ce_value
     };
 }
 
@@ -393,7 +394,7 @@ function Poll(connectionDescriptor) {
                     var idArray = rowArray.map(function(element) {
                         return element.poll_id_external;
                     }).join(", ");
-                    var statement = "SELECT * FROM poll INNER JOIN question ON poll_id = question_poll INNER JOIN subpopulation ON question_id = subpopulation_question INNER JOIN response ON subpopulation_id = response_subpopulation WHERE poll_id_external IN (" + idArray + ")";
+                    var statement = "SELECT * FROM poll INNER JOIN question ON poll_id = question_poll INNER JOIN subpopulation ON question_id = subpopulation_question INNER JOIN response ON subpopulation_id = response_subpopulation LEFT JOIN chart ON question_chart = chart_slug LEFT JOIN chart_estimate ON ce_chart = chart_id AND ce_choice = response_choice WHERE ce_date IS NULL and poll_id_external IN (" + idArray + ") ORDER BY poll_id, question_id, subpopulation_id, response_id";
 
                     var connection = sql.connectionFactory(connectionDescriptor).connection();
 
@@ -402,7 +403,6 @@ function Poll(connectionDescriptor) {
                     return connection.promise();
                 }
             }, reject).then(function(rowArray) {
-
                 resolve(jsonPollArrayForRowArray(rowArray));
             }, reject);
         });
