@@ -1,28 +1,21 @@
 {
-  "name" : "washingtonstenographer",
-  "version" : "0.0.1",
-  "private" : true,
-  "dependencies" : {
-    "express" : "~3.4.8",
-    "static-favicon" : "~1.0.0",
-    "morgan" : "~1.0.0",
-    "cookie-parser" : "~1.0.1",
-    "body-parser" : "~1.0.0",
-    "debug" : "~0.7.4",
-    "jade" : "~1.3.0",
-    "moment" : "2.5.1",
-    "consolidate" : "0.10.0",
-    "mustache" : "0.8.1",
-    "handlebars" : "1.3.0",
-    "pg" : "3.0.1",
-    
-    "sprintf-js" : "0.0.7",
-    "underscore" : "1.6.0",
-        "es6-promise": "0.1.1"
-  },
-  "keywords" : [ ],
-  "bugs" : {
-    "url" : "null"
-  },
-  "main" : "./"
+    "name": "washingtonstenographer",
+    "version": "0.0.1",
+    "private": true,
+    "dependencies": {
+        "express": "~3.4.8",
+        "debug": "~0.7.4",
+        "moment": "~2.5.1",
+        "consolidate": "~0.10.0",
+        "mustache": "~0.8.1",
+        "pg": "~3.0.1",
+        "sprintf-js": "~0.0.7",
+        "underscore": "~1.6.0",
+        "es6-promise": "~0.1.1"
+    },
+    "keywords": [],
+    "bugs": {
+        "url": "null"
+    },
+    "main": "./"
 }

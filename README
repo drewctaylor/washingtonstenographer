@@ -1,0 +1,55 @@
+PREREQUISITES
+=============
+
+This code requires an installation of PostgreSQL and node.js.
+
+PostgreSQL is available from its website:
+
+http://www.postgresql.org
+
+node.js is available from its website:
+
+http://nodejs.org/
+
+If you run MacOS and Homebrew, you may install both from the command line:
+
+$ brew install postgres
+$ brew install node
+
+DATABASE
+========
+
+After you have installed PostgreSQL:
+
+    * create the database "POLLSTER",
+    * create the user "postgres" with the password "postgres",
+    * create the tables and indexes for "POLLSTER", and
+    * insert the data for "POLLSTER"
+
+To do so, change to the "washingtonstenographer" directory. From the MacOS 
+command line, execute the following:
+
+$ createdb POLLSTER
+$ psql POLLSTER -c "CREATE USER postgres WITH PASSWORD 'postgres'"
+$ cat module/pollster/sql/pollster-schema.sql | psql POLLSTER -U postgres
+$ unzip -c module/pollster/sql/pollster-data.zip | psql POLLSTER -U postgres
+
+WEB APPLICATION
+===============
+
+After you have installed node.js:
+
+    * install the necessary node modules.
+    * synchronize the database with the Huffington Post Pollster API
+    * run the web application.
+
+To do so, change to the "washingtonstenographer" directory. From the MacOS
+command line, execute the following:
+
+$ npm install
+$ node bin/synchronize
+$ node web.js
+
+After the last, open "http://localhost:8000" in your web browser. The system works
+under Firefox. It may work in other browsers, too.
+
