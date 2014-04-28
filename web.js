@@ -3,9 +3,9 @@ var http = require("http");
 var engineSet = require("consolidate");
 var moment = require("moment");
 var pollster = require("./module/pollster/pollster-sql.js").initialize(process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/POLLSTER");
-var sort = require("./module/pollster/pollster-sort.js");
+var sort = require("./module/pollster/pollster-sort.js").sort
 var clean = require("./module/pollster/pollster-clean.js").clean;
-var story = require("./story/story-poll.js");
+var story = require("./module/story/story-poll.js");
 var Promise = require("es6-promise").Promise;
 
 // initialize express application
@@ -23,22 +23,6 @@ application.set("view engine", "html");
 application.use(express.logger());
 application.use(express.compress());
 application.use(express.static("static"));
-
-var s = function(a, b) {
-    if (sort.sortQuestionType(a.question.type.name, b.question.type.name) === 0) {
-        if (a.question.type.subject && b.question.type.subject && sort.sortQuestionYear(a.question.type.subject.year, b.question.type.subject.year) === 0) {
-            if (sort.sortQuestionOffice(a.question.type.subject.office, b.question.type.subject.office) === 0) {
-                return sort.sortQuestionSubpopulationResponse(a.question.subpopulation.responses, b.question.subpopulation.responses);
-            } else {
-                return sort.sortQuestionOffice(a.question.type.subject.office, b.question.type.subject.office);
-            }
-        } else {
-            return a.question.name.localeCompare(b.question.name);
-        }
-    } else {
-        return sort.sortQuestionType(a.question.type.name, b.question.type.name);
-    }
-};
 
 var index = function(request, response, next) {
     var before = request.query.date === undefined ? moment().format("YYYY-MM-DD") : moment(request.query.date).format("YYYY-MM-DD");
@@ -73,14 +57,22 @@ var index = function(request, response, next) {
             });
 
             return pollArray;
-        }, []).sort(s);
+        }, [])
 
-        pollArraySorted.forEach(function(pollArray) {
+        if (request.query.nosort === undefined) {
+            pollArraySorted = pollArraySorted.sort(sort);
+        } else {
+            pollArraySorted = pollArraySorted.sort(function(a, b) {
+                return new Date(a.end_date).getTime() - new Date(b.end_date).getTime();
+            });
+        }
+        
+        pollArraySorted.forEach(function(poll) {
             try {
-                story.StoryPollGoal.satisfy(pollArray);
-                responseText += pollArray.text;
+                story.StoryPollGoal.satisfy(poll);
+                responseText += poll.text;
             } catch (e) {
-                console.log(pollArray);
+                console.log(poll);
                 console.log(e.stack);
             }
         });
