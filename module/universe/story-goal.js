@@ -35,7 +35,7 @@ function Goal(name) {
         for (actionIndex = 0; actionIndex < actionSet.length; actionIndex++) {
             try {
                 actionSet[actionIndex].execute.apply(undefined, [story]);
-                console.log(sprintf("The system satisfied the goal '%s' with the action '%s'.", name, actionSet[actionIndex].name()));
+//                console.log(sprintf("The system satisfied the goal '%s' with the action '%s'.", name, actionSet[actionIndex].name()));
                 return;
             } catch (e) {
 //                console.log(e.message);

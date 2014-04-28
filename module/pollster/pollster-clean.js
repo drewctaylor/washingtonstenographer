@@ -367,12 +367,18 @@ function subjectForDirection(question) {
     };
 }
 
+function subjectForGeneric(question) {
+    return {
+        year: yearForQuestion(question)
+    }
+}
+
 function descriptionForSubpopulation(question, subpopulation) {
     return subpopulation.name === "adults" ?
-                    question.stateDemonym + "s" :
-                    (question.state === "US" ?
-                            SUBPOPULATION_CODE_MAP[subpopulation.name] :
-                            question.stateName + " " + SUBPOPULATION_CODE_MAP[subpopulation.name]);
+            question.stateDemonym + "s" :
+            (question.state === "US" ?
+                    SUBPOPULATION_CODE_MAP[subpopulation.name] :
+                    question.stateName + " " + SUBPOPULATION_CODE_MAP[subpopulation.name]);
 }
 
 exports.clean = function(poll) {
@@ -392,6 +398,8 @@ exports.clean = function(poll) {
             question.type.subject = subjectForApproval(question);
         } else if (question.type.name === "election") {
             question.type.subject = subjectForElection(question);
+        } else if (question.type.name === "congressional generic ballot") {
+            question.type.subject = subjectForGeneric(question);
         } else if (question.type.name === "direction" || question.type.name === "satisfaction") {
             question.type.subject = subjectForDirection(question);
         }
