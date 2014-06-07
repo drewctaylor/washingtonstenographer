@@ -117,13 +117,21 @@ function promiseForChartArray(connectionDescriptor, chartArray) {
     return connection.promise();
 }
 
+function promiseForDelete(connectionDescriptor) {
+    var connection = sql.connectionFactory(connectionDescriptor).connection();
+
+    connection.enqueue(["DELETE FROM chart_estimate WHERE ce_chart IN (SELECT DISTINCT ce_chart FROM chart_estimate LEFT JOIN chart ON ce_chart = chart_id WHERE chart_id IS NULL);"]);
+
+    return connection.promise();
+}
+
 exports.synchronize = function(connectionDescriptor) {
     console.log("The system is querying the database for the most recent poll. . .");
 
     return promiseForUpdate(connectionDescriptor).then(function(rowArray) {
         if (rowArray[0].update === null) {
             var update = "2000-01-01";
-            
+
             console.log("The system is querying the api for polls updated since ", update, ". . .");
 
             return pollster.poll().updatedSince(update).promise();
@@ -147,6 +155,7 @@ exports.synchronize = function(connectionDescriptor) {
 
         return Promise.all(
                 [promiseForPollArray(connectionDescriptor, arguments[0][0]),
-                promiseForChartArray(connectionDescriptor, arguments[0][1])]);
+                    promiseForChartArray(connectionDescriptor, arguments[0][1]),
+                    promiseForDelete(connectionDescriptor)]);
     });
 };
