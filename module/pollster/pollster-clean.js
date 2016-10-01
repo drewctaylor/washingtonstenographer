@@ -381,8 +381,52 @@ function descriptionForSubpopulation(question, subpopulation) {
                     question.stateName + " " + SUBPOPULATION_CODE_MAP[subpopulation.name]);
 }
 
+function descriptionForMethod(method) {
+
+    if(method.match(/mixed/gi)) {
+
+        return "a mixed method";
+
+    } else if(method.match(/ivr\/online/gi)) {
+
+        return "an interactive voice response and online";
+
+    } else if(method.match(/internet/gi)) {
+
+        return "an internet";
+
+    } else if(method.match(/mail/gi)) {
+
+        return "a mail";
+
+    } else if(method.match(/live phone/gi)) {
+
+        return "a live phone";
+
+    } else if(method.match(/phone/gi)) {
+
+        return "a phone";
+
+    } else if(method.match(/automated phone/gi)) {
+
+        return "an automated phone"
+
+    } else if(method.match(/ivr\/live phone/gi)) {
+
+        return "an interactive voice response and live phone";
+
+    } else if(method.match(/live phone\/online/gi)) {
+
+        return "an live phone and online";
+
+    } else {
+
+        return "a";
+    }
+}
+
 exports.clean = function(poll) {
-    poll.method = poll.method.toLowerCase();
+    poll.method = descriptionForMethod(poll.method);
 
     poll.questions.forEach(function(question) {
         question.state = stateCodeForQuestion(question);

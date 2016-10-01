@@ -129,8 +129,8 @@ exports.synchronize = function(connectionDescriptor) {
     console.log("The system is querying the database for the most recent poll. . .");
 
     return promiseForUpdate(connectionDescriptor).then(function(rowArray) {
-        if (rowArray[0].update === null) {
-            var update = "2000-01-01";
+        if (/*rowArray[0].update === null*/ true) {
+            var update = "2016-08-01";
 
             console.log("The system is querying the api for polls updated since ", update, ". . .");
 

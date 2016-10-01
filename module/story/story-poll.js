@@ -38,8 +38,6 @@ var storyPoll = new action.Action("Story - Poll")
             poll.start_date = moment(poll.start_date).format("dddd, MMMM Do, YYYY");
             poll.end_date = moment(poll.end_date).format("dddd, MMMM Do, YYYY");
 
-            poll.method = poll.method === "mixed" ? "several methods" : poll.method;
-
             var p = JSON.stringify(poll);
 
             poll.text = "<div class=\"story\">";
