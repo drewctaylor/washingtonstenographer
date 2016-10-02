@@ -1,12 +1,13 @@
 var http = require("http");
 var moment = require("moment");
+var sleep = require("sleep-promise");
 var Promise = require("es6-promise").Promise;
 
 function Charts() {
     var stateValue;
     var topicValue;
 
-    this.state = function(stateValueIn) {
+    this.state = function (stateValueIn) {
         if (stateValueIn === undefined)
             throw "stateValueIn === undefined";
 
@@ -15,7 +16,7 @@ function Charts() {
         return this;
     };
 
-    this.topic = function(topicValueIn) {
+    this.topic = function (topicValueIn) {
         if (topicValueIn === undefined)
             throw "topicValueIn === undefined";
 
@@ -24,38 +25,38 @@ function Charts() {
         return this;
     };
 
-    this.promise = function() {
-        return new Promise(function(resolve, reject) {
+    this.promise = function () {
+        return new Promise(function (resolve, reject) {
             var path = "/pollster/api/charts";
 
             if (stateValue !== undefined ||
-                    topicValue !== undefined) {
+                topicValue !== undefined) {
                 path = path + "?";
             }
 
             path = path + (stateValue !== undefined ? "state=" + stateValue + "&" : "");
             path = path + (topicValue !== undefined ? "topic=" + topicValue + "&" : "");
             path = path.substring(0, path.length - 1);
-            
+
             console.log("http://elections.huffingtonpost.com" + path);
 
             http.get({
                 hostname: "elections.huffingtonpost.com",
                 port: 80,
                 path: path
-            }, function(response) {
+            }, function (response) {
                 var responseDataArray = [];
 
-                response.on("data", function(responseData) {
+                response.on("data", function (responseData) {
                     responseDataArray.push(responseData);
                 });
 
-                response.on("end", function() {
+                response.on("end", function () {
                     var responseJsonCurrent = JSON.parse(Buffer.concat(responseDataArray));
 
                     resolve(responseJsonCurrent);
                 });
-            }).on("error", function(error) {
+            }).on("error", function (error) {
                 reject(error);
             });
         });
@@ -67,29 +68,29 @@ function Chart(chartValue) {
     if (chartValue === undefined)
         throw "chartValue === undefined";
 
-    this.promise = function() {
-        return new Promise(function(resolve, reject) {
+    this.promise = function () {
+        return new Promise(function (resolve, reject) {
             var path = "/pollster/api/charts/" + chartValue;
-            
+
             console.log("http://elections.huffingtonpost.com" + path);
 
             http.get({
                 hostname: "elections.huffingtonpost.com",
                 port: 80,
                 path: path
-            }, function(response) {
+            }, function (response) {
                 var responseDataArray = [];
 
-                response.on("data", function(responseData) {
+                response.on("data", function (responseData) {
                     responseDataArray.push(responseData);
                 });
 
-                response.on("end", function() {
+                response.on("end", function () {
                     var responseJsonCurrent = JSON.parse(Buffer.concat(responseDataArray));
 
                     resolve(responseJsonCurrent);
                 });
-            }).on("error", function(error) {
+            }).on("error", function (error) {
                 reject(error);
             });
         });
@@ -107,7 +108,7 @@ function Poll() {
     var afterValue;
     var updateValue;
 
-    this.from = function(fromValueIn) {
+    this.from = function (fromValueIn) {
         if (pageValue !== undefined)
             throw "pageValue !== undefined";
         if (Number.isNaN(parseInt(fromValueIn)))
@@ -118,7 +119,7 @@ function Poll() {
         return this;
     };
 
-    this.page = function(pageValueIn) {
+    this.page = function (pageValueIn) {
         if (fromValue !== undefined)
             throw "fromValue !== undefined";
         if (Number.isNaN(parseInt(pageValueIn)))
@@ -129,7 +130,7 @@ function Poll() {
         return this;
     };
 
-    this.chart = function(chartValueIn) {
+    this.chart = function (chartValueIn) {
         if (chartValueIn === undefined)
             throw "chartValueIn === undefined";
 
@@ -138,7 +139,7 @@ function Poll() {
         return this;
     };
 
-    this.state = function(stateValueIn) {
+    this.state = function (stateValueIn) {
         if (stateValueIn === undefined)
             throw "stateValueIn === undefined";
 
@@ -147,7 +148,7 @@ function Poll() {
         return this;
     };
 
-    this.topic = function(topicValueIn) {
+    this.topic = function (topicValueIn) {
         if (topicValueIn === undefined)
             throw "topicValueIn === undefined";
 
@@ -156,7 +157,7 @@ function Poll() {
         return this;
     };
 
-    this.endedBefore = function(beforeValueIn) {
+    this.endedBefore = function (beforeValueIn) {
         if (!moment(beforeValueIn).isValid())
             throw "!moment(beforeValueIn).isValid()";
         if (afterValue && afterValue > moment(beforeValueIn))
@@ -167,7 +168,7 @@ function Poll() {
         return this;
     };
 
-    this.endedAfter = function(afterValueIn) {
+    this.endedAfter = function (afterValueIn) {
         if (!moment(afterValueIn).isValid())
             throw "!moment(afterValueIn).isValid()";
         if (beforeValue && beforeValue < moment(afterValueIn))
@@ -178,7 +179,7 @@ function Poll() {
         return this;
     };
 
-    this.updatedSince = function(updateValueIn) {
+    this.updatedSince = function (updateValueIn) {
         if (!moment(updateValueIn).isValid())
             throw "!moment(updateValueIn).isValid()";
 
@@ -186,19 +187,19 @@ function Poll() {
 
         return this;
     };
-    
-    this.promise = function() {
-        return new Promise(function(resolve, reject) {
+
+    this.promise = function () {
+        return new Promise(function (resolve, reject) {
             var path = "/pollster/api/polls";
 
             if (fromValue !== undefined ||
-                    pageValue !== undefined ||
-                    chartValue !== undefined ||
-                    stateValue !== undefined ||
-                    topicValue !== undefined ||
-                    beforeValue !== undefined ||
-                    afterValue !== undefined ||
-                    updateValue !== undefined) {
+                pageValue !== undefined ||
+                chartValue !== undefined ||
+                stateValue !== undefined ||
+                topicValue !== undefined ||
+                beforeValue !== undefined ||
+                afterValue !== undefined ||
+                updateValue !== undefined) {
                 path = path + "?";
             }
 
@@ -218,22 +219,22 @@ function Poll() {
             path = path + (beforeValue !== undefined ? "before=" + beforeValue.format("YYYY-MM-DD") + "&" : "");
             path = path + (afterValue !== undefined ? "after=" + afterValue.format("YYYY-MM-DD") + "&" : "");
             path = path + "sort=updated";
-            
+
             console.log("http://elections.huffingtonpost.com" + path);
 
             http.get({
                 hostname: "elections.huffingtonpost.com",
                 port: 80,
                 path: path
-            }, function(response) {
+            }, function (response) {
                 var responseDataArray = [];
 
-                response.on("data", function(responseData) {
+                response.on("data", function (responseData) {
                     responseDataArray.push(responseData);
                 });
 
-                response.on("end", function() {
-                    var responseJsonCurrent = JSON.parse(Buffer.concat(responseDataArray)).filter(function(poll) {
+                response.on("end", function () {
+                    var responseJsonCurrent = JSON.parse(Buffer.concat(responseDataArray)).filter(function (poll) {
                         return updateValue === undefined || moment(updateValue).isBefore(poll.last_updated);
                     });
 
@@ -248,28 +249,37 @@ function Poll() {
                         poll = (afterValue !== undefined ? poll.endedAfter(afterValue) : poll);
                         poll = (updateValue !== undefined ? poll.updatedSince(updateValue) : poll);
 
-                        poll.promise().then(function(responseJson) {
+                        var pollPromiseResolve = function (responseJson) {
                             resolve(responseJson === undefined ? responseJsonCurrent : responseJsonCurrent.concat(responseJson));
-                        }, function(error) {
-                            reject(error);
-                        });
+                        };
+
+                        var pollPromiseReject = function (error) {
+                            console.log(error);
+                            console.log("Sleeping . . . ");
+                            sleep(10000).then(function() {
+                                console.log("Slept.");
+                                poll.promise().then(pollPromiseResolve, pollPromiseReject);
+                            });
+                        };
+
+                        poll.promise().then(pollPromiseResolve, pollPromiseReject);
                     }
                 });
-            }).on("error", function(error) {
+            }).on("error", function (error) {
                 reject(error);
             });
         });
     };
 }
 
-exports.chart = function(chartValue) {
+exports.chart = function (chartValue) {
     return new Chart(chartValue);
 };
 
-exports.charts = function() {
+exports.charts = function () {
     return new Charts();
 };
 
-exports.poll = function() {
+exports.poll = function () {
     return new Poll();
 };

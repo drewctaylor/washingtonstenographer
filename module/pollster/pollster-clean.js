@@ -308,6 +308,12 @@ function subjectForApproval(question) {
             last_name: /([^,\\.]*)[,\\.]([^-]*)-[^-]*-.*Job Approval/gi.exec(question.name)[1].trim(),
             first_name: /([^,\\.]*)[,\\.]([^-]*)-[^-]*-.*Job Approval/gi.exec(question.name)[2].trim()
         };
+    } else if (question.name.match(/Pres \(43\) Bush - Job Approval/gi) !== null) {
+        return {
+            type: "person",
+            last_name: "Bush",
+            first_name: "George"
+        };
     } else if (question.name.match(/[^:]*: *Obama Job Approval/gi) !== null || question.name.match(/Obama Job Approval.*/gi) !== null) {
         var aspect = undefined;
 
